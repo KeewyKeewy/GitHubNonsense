@@ -261,11 +261,12 @@ print ("this happened")
 
 data = ""
 
+PET_COUNTER = 0
+TIME_SET = time.time()
+
 while True:
     try:
-        PET_COUNTER = 0
-        TIME_SET = time.time()
-        
+                
         data = data+con.recv(1024).decode('UTF-8')
         print (data)
         data_split = re.split(r"[~\r\n]+", data)
@@ -298,7 +299,7 @@ while True:
             print(PET_COUNTER)
             TIME_SET = time.time()
         
-        time.sleep(1 / cfg.RATE)
+        time.sleep(1 / botcmds.RATE)
 
     except socket.error:
         print("Socket died")
