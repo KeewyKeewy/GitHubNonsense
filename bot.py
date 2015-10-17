@@ -2,6 +2,7 @@
 
 import cfg
 import re
+import botcmds
 # Make sure you prefix the quotes with an 'r'!
 CHAT_MSG=re.compile(r"^:\w+!\w+@\w+\.tmi\.twitch\.tv PRIVMSG #\w+ :")
 import socket
@@ -18,9 +19,9 @@ CHAN = cfg.CHAN
 
 # ------------------ Some Definitions ------------------------
 
-BANNED_WORDS = cfg.BAN
-FUCKER_WORDS = cfg.FUCKER
-HOI_LIST = cfg.HOI
+BANNED_WORDS = botcmds.BAN
+FUCKER_WORDS = botcmds.FUCKER
+HOI_LIST = botcmds.HOI
 
 PET_COUNTER = 0
 
