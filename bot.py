@@ -25,7 +25,7 @@ BANNED_WORDS = botcmds.BAN
 FUCKER_WORDS = botcmds.FUCKER
 HOI_LIST = botcmds.HOI
 
-mods = {}
+global mods
 
 global PET_COUNTER
 global TIME_SET
@@ -163,7 +163,10 @@ def get_mods():
 
 def check_mod(username):
     print(username)
-    send_message(CHAN, "Fuck if I know, " + username)
+    if username in mods:
+        send_message(CHAN, "Yes")
+    else:
+        send_message(CHAN, "No, " + username + " , you aren't")
     
 # The full petting command is long.
 
@@ -273,6 +276,13 @@ while True:
             line = str.split(line)
 
             if len(line) >= 1:
+                if line[1] == 'JOIN':
+                    response = urlopen('https://tmi.twitch.tv/group/user/sirtet/chatters')
+                    readable = response.read().decode('utf-8')
+                    chatlist = loads(readable)
+                    chatters = chatlist['chatters']
+                    mods = chatters['moderators']
+
                 if line[0] == 'PING':
                     send_pong(line[1])
 
