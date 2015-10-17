@@ -95,7 +95,9 @@ def parse_message(sender, msg):
         options = {'!test': command_test,
                    '!pet': command_pet,
                    '!pikmin4': command_pikmin4,
-                   '!NERD': command_nerd,}
+                   '!NERD': command_nerd,
+                   '!GetMods': get_mods,
+                   '!MyName': get_name(sender),}
         options_one = {'!timeout': command_timeout, '!fuckyou': command_fuckyou}
  
         if msg[0] in options:
@@ -147,6 +149,14 @@ string > msg"""
 
 def command_pet():
     send_message(CHAN, 'Lesser Dog got excited.')
+
+def get_mods():
+    send_message(CHAN, "/mods")
+    send_message(CHAN, "GOT THE MODLIST")
+
+def get_name(username):
+    print(username)
+    send_message(CHAN, "YOUR NAME IS " + username)
     
 # The full petting command is long.
 
@@ -245,6 +255,7 @@ while True:
         TIME_SET = time.time()
         
         data = data+con.recv(1024).decode('UTF-8')
+        print(data)
         data_split = re.split(r"[~\r\n]+", data)
         data = data_split.pop()
 
