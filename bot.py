@@ -23,7 +23,8 @@ BANNED_WORDS = botcmds.BAN
 FUCKER_WORDS = botcmds.FUCKER
 HOI_LIST = botcmds.HOI
 
-PET_COUNTER = 0
+global PET_COUNTER
+global TIME_SET
 
 # -------------------- Start Functions -----------------------------
 
@@ -238,13 +239,10 @@ join_channel(CHAN)
 
 data = ""
 
-TIME_SET = time.time()
-PET_COUNTER = 0
-
 while True:
     try:
-        global PET_COUNTER
-        global TIME_SET
+        PET_COUNTER = 0
+        TIME_SET = time.time()
         
         data = data+con.recv(1024).decode('UTF-8')
         data_split = re.split(r"[~\r\n]+", data)

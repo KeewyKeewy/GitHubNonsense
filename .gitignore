@@ -46,3 +46,5 @@ Temporary Items
 cfg.py
 botcmds.pyc
 cfg.pyc
+__pycache__/botcmds.cpython-34.pyc
+__pycache__/cfg.cpython-34.pyc
