@@ -8,6 +8,8 @@ CHAT_MSG=re.compile(r"^:\w+!\w+@\w+\.tmi\.twitch\.tv PRIVMSG #\w+ :")
 import socket
 import time
 
+from urllib.request import urlopen
+from json import loads
 # network functions go here ________________________________
 
 HOST = cfg.HOST
@@ -22,6 +24,8 @@ CHAN = cfg.CHAN
 BANNED_WORDS = botcmds.BAN
 FUCKER_WORDS = botcmds.FUCKER
 HOI_LIST = botcmds.HOI
+
+mods = {}
 
 global PET_COUNTER
 global TIME_SET
@@ -97,11 +101,14 @@ def parse_message(sender, msg):
                    '!pikmin4': command_pikmin4,
                    '!NERD': command_nerd,
                    '!GetMods': get_mods,
-                   '!MyName': get_name(sender),}
+                   '!AmIAMod': check_mod,}
         options_one = {'!timeout': command_timeout, '!fuckyou': command_fuckyou}
  
         if msg[0] in options:
-            options[msg[0]]()
+            if msg[0] == '!AmIAMod':
+                options[msg[0]](sender)
+            else:   
+                options[msg[0]]()
         elif msg[0] in options_one:
             try:
                 options[msg[0]](msg[1])
@@ -154,9 +161,9 @@ def get_mods():
     send_message(CHAN, "/mods")
     send_message(CHAN, "GOT THE MODLIST")
 
-def get_name(username):
+def check_mod(username):
     print(username)
-    send_message(CHAN, "YOUR NAME IS " + username)
+    send_message(CHAN, "Fuck if I know, " + username)
     
 # The full petting command is long.
 
@@ -247,6 +254,8 @@ send_pass(PASS)
 send_nick(NICK)
 join_channel(CHAN)
 
+print ("this happened")
+
 data = ""
 
 while True:
@@ -255,7 +264,7 @@ while True:
         TIME_SET = time.time()
         
         data = data+con.recv(1024).decode('UTF-8')
-        print(data)
+        print (data)
         data_split = re.split(r"[~\r\n]+", data)
         data = data_split.pop()
 
