@@ -26,6 +26,7 @@ FUCKER_WORDS = botcmds.FUCKER
 HOI_LIST = botcmds.HOI
 
 global mods
+global chatters
 
 global PET_COUNTER
 global TIME_SET
@@ -105,7 +106,7 @@ def parse_message(sender, msg):
         options_one = {'!timeout': command_timeout, '!fuckyou': command_fuckyou}
  
         if msg[0] in options:
-            if msg[0] == '!AmIAMod':
+            if msg[0] == '!AmIAMod' or msg[0] == '!GetMods':
                 options[msg[0]](sender)
             else:   
                 options[msg[0]]()
@@ -157,10 +158,13 @@ string > msg"""
 def command_pet():
     send_message(CHAN, 'Lesser Dog got excited.')
 
-def get_mods():
-    send_message(CHAN, "/mods")
-    send_message(CHAN, "GOT THE MODLIST")
-
+def get_mods(username):
+    response = urlopen('https://tmi.twitch.tv/group/user/' + CHAN[1:] + '/chatters')
+    readable = response.read().decode('utf-8')
+    chatlist = loads(readable)
+    #load the moderator list
+    mods = chatters['moderators']
+    print ("Reloaded the Modlist")
 def check_mod(username):
     print(username)
     if username in mods:
@@ -257,8 +261,6 @@ send_pass(PASS)
 send_nick(NICK)
 join_channel(CHAN)
 
-print ("this happened")
-
 data = ""
 
 PET_COUNTER = 0
@@ -268,7 +270,6 @@ while True:
     try:
                 
         data = data+con.recv(1024).decode('UTF-8')
-        print (data)
         data_split = re.split(r"[~\r\n]+", data)
         data = data_split.pop()
 
@@ -277,12 +278,16 @@ while True:
             line = str.split(line)
 
             if len(line) >= 1:
+                #This runs once the bot has recieved confimation it's joined
                 if line[1] == 'JOIN':
-                    response = urlopen('https://tmi.twitch.tv/group/user/sirtet/chatters')
+                    response = urlopen('https://tmi.twitch.tv/group/user/' + CHAN[1:] + '/chatters')
                     readable = response.read().decode('utf-8')
                     chatlist = loads(readable)
+                    #load the current people in chat
                     chatters = chatlist['chatters']
+                    #load the moderator list
                     mods = chatters['moderators']
+                    print ("Joined and loaded")
 
                 if line[0] == 'PING':
                     send_pong(line[1])
