@@ -1,6 +1,6 @@
 # bot.py
 
-import cfg, re, botcmds, socket, time, copy, _thread
+import cfg, re, botcmds, socket, time, copy, threading
 
 
 # Make sure you prefix the quotes with an 'r'!
@@ -283,14 +283,17 @@ def start_bot(HOST, PORT, PASS, NICK, CHAN):
 
 str, str, str, str, str -> none"""
 
+
     try:
         con.connect((HOST, PORT))
         send_pass(PASS)
         send_nick(NICK)
     except:
+        print("Skipping login info...")
         pass
 
-    
+
+
     join_channel(CHAN)
 
     data = ""
@@ -353,6 +356,6 @@ str, str, str, str, str -> none"""
 
 for channel in CHAN_CFG:
     print("Connecting to " + channel)
-    _thread.start_new_thread(start_bot, (HOST_CFG, PORT_CFG, PASS_CFG, NICK_CFG, channel))
-    time.sleep(5)
+    threading.Thread(group=None, target=start_bot, name=channel, args=(HOST_CFG, PORT_CFG, PASS_CFG, NICK_CFG, channel)).start()
+    time.sleep(10)
     print("Connected")
