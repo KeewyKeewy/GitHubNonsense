@@ -23,6 +23,7 @@ CHAN = cfg.CHAN
 
 BANNED_WORDS = botcmds.BAN
 FUCKER_WORDS = botcmds.FUCKER
+
 HOI_LIST = botcmds.HOI
 
 global mods
@@ -90,13 +91,14 @@ def parse_message(sender, msg):
             for j in BANNED_WORDS:
                 if j in i: 
                     command_timeout(sender)
-            if i in FUCKER_WORDS:
+            if i.lower() in FUCKER_WORDS:
                 command_fuckyou(sender)
-            for j in HOI_LIST:
-                if j in i:
-                    command_hoi()
-                    break
- 
+        for i in msg:
+            if i.lower() in HOI_LIST:
+                command_hoi()
+                break
+
+                 
         options = {'!test': command_test,
                    '!pet': command_pet,
                    '!pikmin4': command_pikmin4,
@@ -165,6 +167,7 @@ def get_mods(username):
     #load the moderator list
     mods = chatters['moderators']
     print ("Reloaded the Modlist")
+    
 def check_mod(username):
     print(username)
     if username in mods:
@@ -247,7 +250,7 @@ def command_fuckyou(name):
     """Uses the /timeout command cause lol fuck you too.
 
 str, str > msg"""
-    send_message(CHAN, '/timeout ' + name + ' 10')
+    send_message(CHAN, '/timeout ' + name + ' 5')
     send_message(CHAN, name + ' timed out because lol fuck you too.')
 
 
