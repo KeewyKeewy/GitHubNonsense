@@ -33,6 +33,7 @@ global chatters
 global PET_COUNTER
 global TIME_SET
 
+
 # -------------------- Start Functions -----------------------------
 
 def send_pong(msg):
@@ -85,6 +86,11 @@ def get_message(msg):
 
 
 def parse_message(sender, msg):
+    HOI_CHECK = False
+    FUCKER_CHECK = False
+    
+    BAN_CHECK = True
+    
     if len(msg) >= 1:
         ban_check = copy.deepcopy(msg)
         msg = msg.split(' ')
@@ -92,37 +98,44 @@ def parse_message(sender, msg):
         ban_check = re.sub(' ', '', ban_check)
 
         for j in BANNED_WORDS:
-            if j in ban_check.lower(): 
+            if j in ban_check.lower():
                 command_timeout(sender)
+                BAN_CHECK = False
 
-        for i in msg:
-            if i.lower() in HOI_LIST:
-                command_hoi()
-                break
-            if i.lower() in FUCKER_WORDS:
+        if BAN_CHECK:
+            for i in msg:
+                if i.lower() in HOI_LIST:
+                    HOI_CHECK = True
+                if i.lower() in FUCKER_WORDS:
+                    FUCKER_CHECK = True
+
+        if HOI_CHECK or FUCKER_CHECK:
+            if FUCKER_CHECK:    
                 command_fuckyou(sender)
+            else:
+                command_hoi()
 
-                 
-        options = {'!test': command_test,
-                   '!pet': command_pet,
-                   '!pikmin4': command_pikmin4,
-                   '!NERD': command_nerd,
-                   '!GetMods': get_mods,
-                   '!AmIAMod': check_mod,}
-        options_one = {'!timeout': command_timeout, '!fuckyou': command_fuckyou}
- 
-        if msg[0] in options:
-            if msg[0] == '!AmIAMod' or msg[0] == '!GetMods':
-                options[msg[0]](sender)
-            else:   
-                options[msg[0]]()
-        elif msg[0] in options_one:
-            try:
-                options[msg[0]](msg[1])
-            except KeyError:
-                # Key is not present
-                send_message(CHAN, 'One parameter is required.')
-                pass
+        if BAN_CHECK and not FUCKER_CHECK:         
+            options = {'!test': command_test,
+                       '!pet': command_pet,
+                       '!pikmin4': command_pikmin4,
+                       '!NERD': command_nerd,
+                       '!GetMods': get_mods,
+                       '!AmIAMod': check_mod,}
+            options_one = {'!timeout': command_timeout, '!fuckyou': command_fuckyou}
+     
+            if msg[0] in options:
+                if msg[0] == '!AmIAMod' or msg[0] == '!GetMods':
+                    options[msg[0]](sender)
+                else:   
+                    options[msg[0]]()
+            elif msg[0] in options_one:
+                try:
+                    options[msg[0]](msg[1])
+                except KeyError:
+                    # Key is not present
+                    send_message(CHAN, 'One parameter is required.')
+                    pass
 
 
 # -------------- End Helper Functions -------------------
