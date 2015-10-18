@@ -13,11 +13,11 @@ from urllib.request import urlopen
 from json import loads
 # network functions go here ________________________________
 
-HOST = cfg.HOST
-PORT = cfg.PORT
-NICK = cfg.NICK
-PASS = cfg.PASS
-CHAN = cfg.CHAN
+HOST_CFG = cfg.HOST
+PORT_CFG = cfg.PORT
+NICK_CFG = cfg.NICK
+PASS_CFG = cfg.PASS
+CHAN_CFG = cfg.CHAN
 
 
 # ------------------ Some Definitions ------------------------
@@ -33,6 +33,8 @@ global chatters
 global PET_COUNTER
 global TIME_SET
 
+global con
+con = socket.socket()
 
 # -------------------- Start Functions -----------------------------
 
@@ -85,11 +87,13 @@ def get_message(msg):
     return result
 
 
-def parse_message(sender, msg):
+def parse_message(sender, msg, channel):
     HOI_CHECK = False
     FUCKER_CHECK = False
     
     BAN_CHECK = True
+
+    CHAN = channel
     
     if len(msg) >= 1:
         ban_check = copy.deepcopy(msg)
@@ -99,7 +103,7 @@ def parse_message(sender, msg):
 
         for j in BANNED_WORDS:
             if j in ban_check.lower():
-                command_timeout(sender)
+                command_timeout(CHAN, sender)
                 BAN_CHECK = False
 
         if BAN_CHECK:
@@ -111,9 +115,9 @@ def parse_message(sender, msg):
 
         if HOI_CHECK or FUCKER_CHECK:
             if FUCKER_CHECK:    
-                command_fuckyou(sender)
+                command_fuckyou(CHAN, sender)
             else:
-                command_hoi()
+                command_hoi(CHAN)
 
         if BAN_CHECK and not FUCKER_CHECK:         
             options = {'!test': command_test,
@@ -126,12 +130,12 @@ def parse_message(sender, msg):
      
             if msg[0] in options:
                 if msg[0] == '!AmIAMod' or msg[0] == '!GetMods':
-                    options[msg[0]](sender)
+                    options[msg[0]](CHAN, sender)
                 else:   
-                    options[msg[0]]()
+                    options[msg[0]](CHAN)
             elif msg[0] in options_one:
                 try:
-                    options[msg[0]](msg[1])
+                    options[msg[0]](CHAN, msg[1])
                 except KeyError:
                     # Key is not present
                     send_message(CHAN, 'One parameter is required.')
@@ -143,26 +147,26 @@ def parse_message(sender, msg):
 
 # -------------------- Start Command Functions -----------------
 
-def command_test():
+def command_test(CHAN):
     """A command to test if the bot is working.
 
 string > msg"""
     send_message(CHAN, "Hope I'm not broken.")
 
-def command_hoi():
+def command_hoi(CHAN):
     """hOI!
 
 string > msg"""
     send_message(CHAN, "hOI!")
 
 
-def command_pikmin4():
+def command_pikmin4(CHAN):
     """A command to express the hype that is Pikmin 4.
 
 string > msg"""
     send_message(CHAN, "PIKMIN 4 CoolCat")
 
-def command_nerd():
+def command_nerd(CHAN):
     """A command to poke fun at the nerds in chat.
 
 string > msg"""
@@ -174,10 +178,10 @@ string > msg"""
     send_message(CHAN, "GET FUCKO'D")
 
 
-def command_pet():
+def command_pet(CHAN):
     send_message(CHAN, 'Lesser Dog got excited.')
 
-def get_mods(username):
+def get_mods(CHAN, username):
     response = urlopen('https://tmi.twitch.tv/group/user/' + CHAN[1:] + '/chatters')
     readable = response.read().decode('utf-8')
     chatlist = loads(readable)
@@ -185,7 +189,7 @@ def get_mods(username):
     mods = chatters['moderators']
     print ("Reloaded the Modlist")
     
-def check_mod(username):
+def check_mod(CHAN, username):
     print(username)
     if username in mods:
         send_message(CHAN, "Yes")
@@ -194,7 +198,7 @@ def check_mod(username):
     
 # The full petting command is long.
 
-##def command_pet():
+##def command_pet(CHAN):
 ##    global PET_COUNTER
 ##    if PET_COUNTER < 3:
 ##        send_message(CHAN, 'KeewyDog')
@@ -256,14 +260,14 @@ def check_mod(username):
 
 # End of Lesser Dog shenanigans.        
 
-def command_timeout(name):
+def command_timeout(CHAN, name):
     """Uses the /timeout command to timeout a user.
 
 str, str > msg"""
     send_message(CHAN, '/timeout ' + name + ' 60')
     send_message(CHAN, name + ' timed out because of shortened link.')
     
-def command_fuckyou(name):
+def command_fuckyou(CHAN, name):
     """Uses the /timeout command cause lol fuck you too.
 
 str, str > msg"""
@@ -274,60 +278,71 @@ str, str > msg"""
     
 # ------------- End Command Functions -----------------
 
-con = socket.socket()
-con.connect((HOST, PORT))
+# --------- Function for Starting Bot While Loop ---------
 
-send_pass(PASS)
-send_nick(NICK)
-join_channel(CHAN)
+def start_bot(HOST, PORT, PASS, NICK, CHAN):
+    """Takes the cfg.py settings and starts the while loop that runs the bot.
 
-data = ""
+str, str, str, str, str -> none"""
 
-PET_COUNTER = 0
-TIME_SET = time.time()
+    con.connect((HOST, PORT))
 
-while True:
-    try:
-                
-        data = data+con.recv(1024).decode('UTF-8')
-        data_split = re.split(r"[~\r\n]+", data)
-        data = data_split.pop()
+    send_pass(PASS)
+    send_nick(NICK)
+    join_channel(CHAN)
 
-        for line in data_split:
-            line = str.rstrip(line)
-            line = str.split(line)
+    data = ""
 
-            if len(line) >= 1:
-                #This runs once the bot has recieved confimation it's joined
-                if line[1] == 'JOIN':
-                    response = urlopen('https://tmi.twitch.tv/group/user/' + CHAN[1:] + '/chatters')
-                    readable = response.read().decode('utf-8')
-                    chatlist = loads(readable)
-                    #load the current people in chat
-                    chatters = chatlist['chatters']
-                    #load the moderator list
-                    mods = chatters['moderators']
-                    print ("Joined and loaded")
+    PET_COUNTER = 0
+    TIME_SET = time.time()
 
-                if line[0] == 'PING':
-                    send_pong(line[1])
+    while True:
+        try:
+                    
+            data = data+con.recv(1024).decode('UTF-8')
+            data_split = re.split(r"[~\r\n]+", data)
+            data = data_split.pop()
 
-                if line[1] == 'PRIVMSG':
-                    sender = get_sender(line[0])
-                    message = get_message(line)
-                    parse_message(sender, message)
+            for line in data_split:
+                line = str.rstrip(line)
+                line = str.split(line)
 
-                    print(sender + ": " + message)
+                if len(line) >= 1:
+                    #This runs once the bot has recieved confimation it's joined
+                    if line[1] == 'JOIN':
+                        response = urlopen('https://tmi.twitch.tv/group/user/' + CHAN[1:] + '/chatters')
+                        readable = response.read().decode('utf-8')
+                        chatlist = loads(readable)
+                        #load the current people in chat
+                        chatters = chatlist['chatters']
+                        #load the moderator list
+                        mods = chatters['moderators']
+                        print ("Joined and loaded")
 
-        if (TIME_SET - time.time()) < -120 or (TIME_SET - time.time())> 0:
-            PET_COUNTER = 0
-            print(PET_COUNTER)
-            TIME_SET = time.time()
-        
-        time.sleep(1 / botcmds.RATE)
+                    if line[0] == 'PING':
+                        send_pong(line[1])
 
-    except socket.error:
-        print("Socket died")
+                    if line[1] == 'PRIVMSG':
+                        sender = get_sender(line[0])
+                        message = get_message(line)
+                        parse_message(sender, message, CHAN)
 
-    except socket.timeout:
-        print("Socket timeout")
+                        print(sender + ": " + message)
+
+            if (TIME_SET - time.time()) < -120 or (TIME_SET - time.time())> 0:
+                PET_COUNTER = 0
+                print(PET_COUNTER)
+                TIME_SET = time.time()
+            
+            time.sleep(1 / botcmds.RATE)
+
+        except socket.error:
+            print("Socket died")
+
+        except socket.timeout:
+            print("Socket timeout")
+
+
+# ---------- End Bot Function -----------
+
+start_bot(HOST_CFG, PORT_CFG, PASS_CFG, NICK_CFG, CHAN_CFG)
