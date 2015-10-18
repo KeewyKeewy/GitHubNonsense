@@ -1,13 +1,11 @@
 # bot.py
 
-import cfg
-import re
-import botcmds
+import cfg, re, botcmds, socket, time, copy, _thread
+
+
 # Make sure you prefix the quotes with an 'r'!
 CHAT_MSG=re.compile(r"^:\w+!\w+@\w+\.tmi\.twitch\.tv PRIVMSG #\w+ :")
-import socket
-import time
-import copy
+
 
 from urllib.request import urlopen
 from json import loads
@@ -126,20 +124,20 @@ def parse_message(sender, msg, channel):
                        '!NERD': command_nerd,
                        '!GetMods': get_mods,
                        '!AmIAMod': check_mod,}
-            options_one = {'!timeout': command_timeout, '!fuckyou': command_fuckyou}
+##            options_one = {'!timeout': command_timeout, '!fuckyou': command_fuckyou}
      
             if msg[0] in options:
                 if msg[0] == '!AmIAMod' or msg[0] == '!GetMods':
                     options[msg[0]](CHAN, sender)
                 else:   
                     options[msg[0]](CHAN)
-            elif msg[0] in options_one:
-                try:
-                    options[msg[0]](CHAN, msg[1])
-                except KeyError:
+##            elif msg[0] in options_one:
+##                try:
+##                    options[msg[0]](CHAN, msg[1])
+##                except KeyError:
                     # Key is not present
-                    send_message(CHAN, 'One parameter is required.')
-                    pass
+##                    send_message(CHAN, 'One parameter is required.')
+##                    pass
 
 
 # -------------- End Helper Functions -------------------
@@ -285,10 +283,14 @@ def start_bot(HOST, PORT, PASS, NICK, CHAN):
 
 str, str, str, str, str -> none"""
 
-    con.connect((HOST, PORT))
+    try:
+        con.connect((HOST, PORT))
+        send_pass(PASS)
+        send_nick(NICK)
+    except:
+        pass
 
-    send_pass(PASS)
-    send_nick(NICK)
+    
     join_channel(CHAN)
 
     data = ""
@@ -317,7 +319,7 @@ str, str, str, str, str -> none"""
                         chatters = chatlist['chatters']
                         #load the moderator list
                         mods = chatters['moderators']
-                        print ("Joined and loaded")
+                        print ("Joined and loaded " + CHAN)
 
                     if line[0] == 'PING':
                         send_pong(line[1])
@@ -345,4 +347,12 @@ str, str, str, str, str -> none"""
 
 # ---------- End Bot Function -----------
 
-start_bot(HOST_CFG, PORT_CFG, PASS_CFG, NICK_CFG, CHAN_CFG)
+
+# ------ Thread Testing --------
+
+
+for channel in CHAN_CFG:
+    print("Connecting to " + channel)
+    _thread.start_new_thread(start_bot, (HOST_CFG, PORT_CFG, PASS_CFG, NICK_CFG, channel))
+    time.sleep(5)
+    print("Connected")
