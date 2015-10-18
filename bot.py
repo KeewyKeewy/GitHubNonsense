@@ -7,6 +7,7 @@ import botcmds
 CHAT_MSG=re.compile(r"^:\w+!\w+@\w+\.tmi\.twitch\.tv PRIVMSG #\w+ :")
 import socket
 import time
+import copy
 
 from urllib.request import urlopen
 from json import loads
@@ -85,18 +86,21 @@ def get_message(msg):
 
 def parse_message(sender, msg):
     if len(msg) >= 1:
+        ban_check = copy.deepcopy(msg)
         msg = msg.split(' ')
- 
-        for i in msg:
-            for j in BANNED_WORDS:
-                if j in i: 
-                    command_timeout(sender)
-            if i.lower() in FUCKER_WORDS:
-                command_fuckyou(sender)
+        # a copy of the original message with all the spaces removed
+        ban_check = re.sub(' ', '', ban_check)
+
+        for j in BANNED_WORDS:
+            if j in ban_check.lower(): 
+                command_timeout(sender)
+
         for i in msg:
             if i.lower() in HOI_LIST:
                 command_hoi()
                 break
+            if i.lower() in FUCKER_WORDS:
+                command_fuckyou(sender)
 
                  
         options = {'!test': command_test,
