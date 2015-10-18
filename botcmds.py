@@ -9,7 +9,7 @@ CHAN = "#xxxxxxx"                   # the channel you want to join
 
 RATE = (20/30) # messages per second
 
-BAN = ['bit.ly', 'goo.gl', '.gu.ma']
+BAN = ['bit.ly', 'goo.gl', '.gu.ma', 'ow.ly']
 FUCKER = ['fuckyoukeewy', 'fuckyou,keewy']
 
 HOI = ['hOI', 'HOI', 'hoi', 'hOi', 'Hoi']
