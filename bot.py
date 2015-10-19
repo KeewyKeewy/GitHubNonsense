@@ -28,7 +28,7 @@ global mods
 global chatters
 
 mods = []
-chatters = []
+chatters = {}
 
 global admins
 admins = cfg.ADMINS
@@ -101,12 +101,12 @@ def parse_message(sender, msg, channel):
 
     options = {'!test': command_test,
                '!pikmin4': command_pikmin4,
-               '!nerd': command_nerd,
                '!getmods': get_mods,
                '!amiamod': check_mod,}
     options_one = {'!togglepet': command_pet_toggle,
                    '!pettoggle': command_pet_toggle,
-                   '!pet': command_pet,}
+                   '!pet': command_pet,
+                   '!nerd': command_nerd,}
     options_silent = {'!silent': command_silence,}
 
     # --- End Definitions ---
@@ -160,7 +160,7 @@ def parse_message(sender, msg, channel):
                         elif msg[0] == '!pet':
                             options_one[msg[0]](CHAN)
                         else:
-                            options_one[msg[0]](CHAN, msg[1])
+                            options_one[msg[0]](CHAN, sender)
                     except KeyError:
                         # Key is not present
                         send_message(CHAN, 'One parameter is required.')
@@ -193,16 +193,19 @@ def command_pikmin4(CHAN):
 str > none"""
     send_message(CHAN, "PIKMIN 4 CoolCat")
 
-def command_nerd(CHAN):
+def command_nerd(CHAN, name):
     """A command to poke fun at the nerds in chat.
 
 string > none"""
-    send_message(CHAN, "FrankerZ ")
-    send_message(CHAN, "FrankerZ FrankerZ ")
-    send_message(CHAN, "FrankerZ FrankerZ FrankerZ ")
-    send_message(CHAN, "FrankerZ FrankerZ ")
-    send_message(CHAN, "FrankerZ ")
-    send_message(CHAN, "GET FUCKO'D")
+    if name in mods or name in admins:
+        send_message(CHAN, "FrankerZ ")
+        send_message(CHAN, "FrankerZ FrankerZ ")
+        send_message(CHAN, "FrankerZ FrankerZ FrankerZ ")
+        send_message(CHAN, "FrankerZ FrankerZ ")
+        send_message(CHAN, "FrankerZ ")
+        send_message(CHAN, "GET FUCKO'D")
+    else:
+        send_message(CHAN, 'lol nerd you do not have permission to use this command.')
     
 def get_mods(CHAN, username):
     global mods
@@ -211,14 +214,15 @@ def get_mods(CHAN, username):
     readable = response.read().decode('utf-8')
     chatlist = loads(readable)
     #load the moderator list
+    chatters = chatlist['chatters']
     mods = chatters['moderators']
     print ("Reloaded the Modlist")
     
 def check_mod(CHAN, username):
     global mods
     global chatters
-    print(username)
-    if username in mods:
+    global admins
+    if username in mods or username in admins:
         send_message(CHAN, "Yes")
     else:
         send_message(CHAN, "No, " + username + " , you aren't")
@@ -243,22 +247,17 @@ def command_silence(CHAN, name, toggler=''):
 str, str, str -> none"""
     global SILENT_MODE
     if name in mods or name in admins:
-        print("check 1")
         if toggler.lower() == 'on':
-            print("check 2")
             SILENT_MODE = False
             send_message(CHAN, 'Silent mode is on.')
         elif toggler.lower() == 'off':
-            print('check 3')
             SILENT_MODE = True
             send_message(CHAN, 'Silent mode is off.')
             pass
         else:
-            print('check 4')
             send_message(CHAN, 'Invalid arguement "' + toggler + '"')
             pass
     else:
-        print("Check 5")
         send_message(CHAN, 'You do not have permission to use this command.')
 
 
@@ -273,11 +272,9 @@ str, str, str -> none"""
     if name in mods or name in admins:
         if petstr.lower() == 'on':
             PET_BOOL = False
-            print(PET_BOOL)
             send_message(CHAN, 'Lesser Dog got closer.')
         elif petstr.lower() == 'off':
             PET_BOOL = True
-            print(PET_BOOL)
             send_message(CHAN, 'Lesser Dog walked away.')
         else:
             send_message(CHAN, 'Invalid arguement "' + petstr + '"')
