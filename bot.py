@@ -106,8 +106,8 @@ def parse_message(sender, msg, channel):
                '!amiamod': check_mod,}
     options_one = {'!togglepet': command_pet_toggle,
                    '!pettoggle': command_pet_toggle,
-                   '!pet': command_pet,
-                   '!silent': command_silence,}
+                   '!pet': command_pet,}
+    options_silent = {'!silent': command_silence,}
 
     # --- End Definitions ---
     
@@ -122,10 +122,10 @@ def parse_message(sender, msg, channel):
                 command_timeout(CHAN, sender)
                 BAN_CHECK = False
                 
-        if msg[0] in options_one:
+        if msg[0] in options_silent:
                 try:
                     if msg[0].lower() == '!silent':
-                        options_one[msg[0]](CHAN, sender, msg[1])
+                        options_silent[msg[0]](CHAN, sender, msg[1])
                 except KeyError:
                     # Key is not present
                     send_message(CHAN, 'One parameter is required.')
