@@ -1,6 +1,7 @@
 # bot.py
 
-import cfg, re, botcmds, socket, time, copy, threading, os
+import cfg, re, botcmds, socket, time, copy
+from multiprocessing import Process
 
 # Make sure you prefix the quotes with an 'r'!
 CHAT_MSG=re.compile(r"^:\w+!\w+@\w+\.tmi\.twitch\.tv PRIVMSG #\w+ :")
@@ -284,14 +285,14 @@ def start_bot(HOST, PORT, PASS, NICK, CHAN):
 str, str, str, str, str -> none"""
     print("Starting bot login to " + CHAN)
 
+
     con.connect((HOST, PORT))
     send_pass(PASS)
     send_nick(NICK)
 
 
-
-
     join_channel(CHAN)
+
 
     data = ""
 
@@ -299,8 +300,7 @@ str, str, str, str, str -> none"""
     TIME_SET = time.time()
 
     while True:
-        try:
-                    
+        try:       
             data = data+con.recv(1024).decode('UTF-8')
             data_split = re.split(r"[~\r\n]+", data)
             data = data_split.pop()
@@ -346,14 +346,12 @@ str, str, str, str, str -> none"""
 
 
 # ---------- End Bot Function -----------
-
-
-# ------ Threading Testing --------
+# _______________________________________________________________
+#
+# ------ Multiprocessing Testing --------
 
 
 for channel in CHAN_CFG:
-    print("Connecting to " + channel)
-    t = threading.Thread(target=start_bot, args=(HOST_CFG, PORT_CFG, PASS_CFG, NICK_CFG, channel))
-    t.start()
-    time.sleep(10)
-    print("Connected")
+    if __name__ == '__main__':    # This must be here because of Windows OS
+        p = Process(target=start_bot, args=(HOST_CFG, PORT_CFG, PASS_CFG, NICK_CFG, channel))
+        p.start()
