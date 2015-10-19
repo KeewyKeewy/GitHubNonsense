@@ -23,13 +23,17 @@ CHAN_CFG = cfg.CHAN
 BANNED_WORDS = botcmds.BAN
 FUCKER_WORDS = botcmds.FUCKER
 
-HOI_LIST = botcmds.HOI
 
 global mods
 global chatters
 
-global PET_COUNTER
-global TIME_SET
+mods = []
+
+global admins
+admins = cfg.ADMINS
+
+
+
 
 global con
 con = socket.socket()
@@ -88,25 +92,24 @@ def get_message(msg):
 def parse_message(sender, msg, channel):
     HOI_CHECK = False
     FUCKER_CHECK = False
-    
     BAN_CHECK = True
 
     CHAN = channel
     
     if len(msg) >= 1:
-        ban_check = copy.deepcopy(msg)
+        ban_msg = copy.deepcopy(msg)
         msg = msg.split(' ')
         # a copy of the original message with all the spaces removed
-        ban_check = re.sub(' ', '', ban_check)
+        ban_msg = re.sub(' ', '', ban_msg)
 
         for j in BANNED_WORDS:
-            if j in ban_check.lower():
+            if j in ban_msg.lower():
                 command_timeout(CHAN, sender)
                 BAN_CHECK = False
 
         if BAN_CHECK:
             for i in msg:
-                if i.lower() in HOI_LIST:
+                if "hoi" in i.lower():
                     HOI_CHECK = True
                 if i.lower() in FUCKER_WORDS:
                     FUCKER_CHECK = True
@@ -119,12 +122,14 @@ def parse_message(sender, msg, channel):
 
         if BAN_CHECK and not FUCKER_CHECK:         
             options = {'!test': command_test,
-                       '!pet': command_pet,
                        '!pikmin4': command_pikmin4,
                        '!NERD': command_nerd,
                        '!GetMods': get_mods,
                        '!AmIAMod': check_mod,}
-##            options_one = {'!timeout': command_timeout, '!fuckyou': command_fuckyou}
+# !pet command moved to options_one in case of future state improvements
+            options_one = {'!togglepet': command_pet_toggle,
+                           '!pettoggle': command_pet_toggle,
+                           '!pet': command_pet,}
      
             if msg[0] in options:
                 if msg[0] == '!AmIAMod' or msg[0] == '!GetMods':
@@ -132,13 +137,18 @@ def parse_message(sender, msg, channel):
                     pass
                 else:   
                     options[msg[0]](CHAN)
-##            elif msg[0] in options_one:
-##                try:
-##                    options[msg[0]](CHAN, msg[1])
-##                except KeyError:
+            elif msg[0] in options_one:
+                try:
+                    if msg[0] == '!togglepet' or msg[0] == '!pettoggle':
+                        options_one[msg[0]](CHAN, sender, msg[1])
+                    elif msg[0] == '!pet':
+                        options_one[msg[0]](CHAN)
+                    else:
+                        options_one[msg[0]](CHAN, msg[1])
+                except KeyError:
                     # Key is not present
-##                    send_message(CHAN, 'One parameter is required.')
-##                    pass
+                    send_message(CHAN, 'One parameter is required.')
+                    pass
 
 
 # -------------- End Helper Functions -------------------
@@ -149,37 +159,33 @@ def parse_message(sender, msg, channel):
 def command_test(CHAN):
     """A command to test if the bot is working.
 
-string > msg"""
+str > none"""
     send_message(CHAN, "Hope I'm not broken.")
 
 def command_hoi(CHAN):
     """hOI!
 
-string > msg"""
-    send_message(CHAN, "hOI!")
+str > none"""
+    send_message(CHAN, "hOI ! ! !")
 
 
 def command_pikmin4(CHAN):
     """A command to express the hype that is Pikmin 4.
 
-string > msg"""
+str > none"""
     send_message(CHAN, "PIKMIN 4 CoolCat")
 
 def command_nerd(CHAN):
     """A command to poke fun at the nerds in chat.
 
-string > msg"""
+string > none"""
     send_message(CHAN, "FrankerZ ")
     send_message(CHAN, "FrankerZ FrankerZ ")
     send_message(CHAN, "FrankerZ FrankerZ FrankerZ ")
     send_message(CHAN, "FrankerZ FrankerZ ")
     send_message(CHAN, "FrankerZ ")
     send_message(CHAN, "GET FUCKO'D")
-
-
-def command_pet(CHAN):
-    send_message(CHAN, 'Lesser Dog got excited.')
-
+    
 def get_mods(CHAN, username):
     response = urlopen('https://tmi.twitch.tv/group/user/' + CHAN[1:] + '/chatters')
     readable = response.read().decode('utf-8')
@@ -194,70 +200,6 @@ def check_mod(CHAN, username):
         send_message(CHAN, "Yes")
     else:
         send_message(CHAN, "No, " + username + " , you aren't")
-    
-# The full petting command is long.
-
-##def command_pet(CHAN):
-##    global PET_COUNTER
-##    if PET_COUNTER < 3:
-##        send_message(CHAN, 'KeewyDog')
-##        send_message(CHAN, 'Lesser Dog got excited.')
-##        PET_COUNTER = PET_COUNTER + 1
-##        TIME_SET = time.time()
-##        
-##    elif PET_COUNTER > 2 and PET_COUNTER < 6:
-##        send_message(CHAN, 'KeewyDog')
-##        send_message(CHAN, 'KeewyLesser')
-##        send_message(CHAN, "It's already overexcited.")
-##        PET_COUNTER = PET_COUNTER + 1
-##        
-##    elif PET_COUNTER > 5 and PET_COUNTER < 9:
-##        send_message(CHAN, 'KeewyDog')
-##        send_message(CHAN, 'KeewyLesser')
-##        send_message(CHAN, 'KeewyLesser')
-##        send_message(CHAN, "Lesser Dog is overstimulated.")
-##        PET_COUNTER = PET_COUNTER + 1
-##        
-##    elif PET_COUNTER > 8 and PET_COUNTER < 12:
-##        send_message(CHAN, 'KeewyLesser')
-##        send_message(CHAN, 'KeewyLesser')
-##        send_message(CHAN, 'KeewyLesser')
-##        send_message(CHAN, "Lesser Dog shows no sign of stopping.")
-##        PET_COUNTER = PET_COUNTER + 1
-##
-##    elif PET_COUNTER > 11 and PET_COUNTER < 15:
-##        send_message(CHAN, 'KeewyLesser KeewygoD')
-##        send_message(CHAN, 'KeewyLesser')
-##        send_message(CHAN, 'KeewyLesser')
-##        send_message(CHAN, "You can reach Lesser Dog again.")
-##        PET_COUNTER = PET_COUNTER + 1
-##
-##    elif PET_COUNTER > 14 and PET_COUNTER < 18:
-##        send_message(CHAN, 'KeewyLesser KeewyLesser')
-##        send_message(CHAN, 'KeewyLesser KeewygoD')
-##        send_message(CHAN, 'KeewyLesser')
-##        send_message(CHAN, "It's possible that you may have a problem.")
-##        PET_COUNTER = PET_COUNTER + 1
-##        
-##    elif PET_COUNTER > 17 and PET_COUNTER < 21:
-##        send_message(CHAN, 'KeewyLesser KeewyLesser')
-##        send_message(CHAN, 'KeewyLesser KeewyLesser')
-##        send_message(CHAN, 'KeewyLesser KeewygoD')
-##        send_message(CHAN, "Lesser Dog is unpettable but appreciates the attempt.")
-##        PET_COUNTER = PET_COUNTER + 1
-##
-##    elif PET_COUNTER > 20 and PET_COUNTER < 23:
-##        send_message(CHAN, 'KeewyLesser KeewyLesser')
-##        send_message(CHAN, 'KeewyLesser KeewyLesser')
-##        send_message(CHAN, 'KeewyLesser KeewyLesser')
-##        send_message(CHAN, "Lesser Dog has gone where no dog has gone before.")
-##        PET_COUNTER = PET_COUNTER + 1
-##
-##    elif PET_COUNTER > 22:
-##        send_message(CHAN, "Really...")
-##        PET_COUNTER = PET_COUNTER + 1
-
-# End of Lesser Dog shenanigans.        
 
 def command_timeout(CHAN, name):
     """Uses the /timeout command to timeout a user.
@@ -273,9 +215,99 @@ str, str > msg"""
     send_message(CHAN, '/timeout ' + name + ' 5')
     send_message(CHAN, name + ' timed out because lol fuck you too.')
 
+# ------------------- The Pet Commands -------------------------------
+
+def command_pet_toggle(CHAN, name, petstr = ""):
+    """Switches petting between short and long form. Only works for mods.
+
+str, str, str -> none"""
+    global PET_BOOL
+    if name in mods or name in admins:
+        if petstr.lower() == 'on':
+            PET_BOOL = False
+            print(PET_BOOL)
+            send_message(CHAN, 'Lesser Dog got closer.')
+        elif petstr.lower() == 'off':
+            PET_BOOL = True
+            print(PET_BOOL)
+            send_message(CHAN, 'Lesser Dog walked away.')
+        else:
+            send_message(CHAN, 'Invalid arguement "' + petstr + '"')
+    else:
+        send_message(CHAN, 'You do not have permission to use this command.')
+
+
+def command_pet(CHAN):
+    global PET_COUNTER
+    global PET_BOOL
+    if  PET_BOOL:
+        send_message(CHAN, 'Lesser Dog got excited.')
+
+    else:
+        if PET_COUNTER < 3:
+            send_message(CHAN, 'KeewyDog')
+            send_message(CHAN, 'Lesser Dog got excited.')
+            PET_COUNTER = PET_COUNTER + 1
+            TIME_SET = time.time()
+            
+        elif PET_COUNTER > 2 and PET_COUNTER < 6:
+            send_message(CHAN, 'KeewyDog')
+            send_message(CHAN, 'KeewyLesser')
+            send_message(CHAN, "It's already overexcited.")
+            PET_COUNTER = PET_COUNTER + 1
+            
+        elif PET_COUNTER > 5 and PET_COUNTER < 9:
+            send_message(CHAN, 'KeewyDog')
+            send_message(CHAN, 'KeewyLesser')
+            send_message(CHAN, 'KeewyLesser')
+            send_message(CHAN, "Lesser Dog is overstimulated.")
+            PET_COUNTER = PET_COUNTER + 1
+            
+        elif PET_COUNTER > 8 and PET_COUNTER < 12:
+            send_message(CHAN, 'KeewyLesser')
+            send_message(CHAN, 'KeewyLesser')
+            send_message(CHAN, 'KeewyLesser')
+            send_message(CHAN, "Lesser Dog shows no sign of stopping.")
+            PET_COUNTER = PET_COUNTER + 1
+
+        elif PET_COUNTER > 11 and PET_COUNTER < 15:
+            send_message(CHAN, 'KeewyLesser KeewygoD')
+            send_message(CHAN, 'KeewyLesser')
+            send_message(CHAN, 'KeewyLesser')
+            send_message(CHAN, "You can reach Lesser Dog again.")
+            PET_COUNTER = PET_COUNTER + 1
+
+        elif PET_COUNTER > 14 and PET_COUNTER < 18:
+            send_message(CHAN, 'KeewyLesser KeewyLesser')
+            send_message(CHAN, 'KeewyLesser KeewygoD')
+            send_message(CHAN, 'KeewyLesser')
+            send_message(CHAN, "It's possible that you may have a problem.")
+            PET_COUNTER = PET_COUNTER + 1
+            
+        elif PET_COUNTER > 17 and PET_COUNTER < 21:
+            send_message(CHAN, 'KeewyLesser KeewyLesser')
+            send_message(CHAN, 'KeewyLesser KeewyLesser')
+            send_message(CHAN, 'KeewyLesser KeewygoD')
+            send_message(CHAN, "Lesser Dog is unpettable but appreciates the attempt.")
+            PET_COUNTER = PET_COUNTER + 1
+
+        elif PET_COUNTER > 20 and PET_COUNTER < 23:
+            send_message(CHAN, 'KeewyLesser KeewyLesser')
+            send_message(CHAN, 'KeewyLesser KeewyLesser')
+            send_message(CHAN, 'KeewyLesser KeewyLesser')
+            send_message(CHAN, "Lesser Dog has gone where no dog has gone before.")
+            PET_COUNTER = PET_COUNTER + 1
+
+        elif PET_COUNTER > 22:
+            send_message(CHAN, "Really...")
+            PET_COUNTER = PET_COUNTER + 1
+        else:
+            send_message(CHAN, "Lesser Dog is broken...")
 
     
 # ------------- End Command Functions -----------------
+
+
 
 # --------- Function for Starting Bot While Loop ---------
 
@@ -296,7 +328,12 @@ str, str, str, str, str -> none"""
 
     data = ""
 
+    global PET_COUNTER
+    global PET_BOOL
+    global TIME_SET
+    
     PET_COUNTER = 0
+    PET_BOOL = True
     TIME_SET = time.time()
 
     while True:
@@ -333,7 +370,7 @@ str, str, str, str, str -> none"""
 
             if (TIME_SET - time.time()) < -120 or (TIME_SET - time.time())> 0:
                 PET_COUNTER = 0
-                print(PET_COUNTER)
+                print("PET_COUNTER has reset.")
                 TIME_SET = time.time()
             
             time.sleep(1 / botcmds.RATE)

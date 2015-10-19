@@ -1,4 +1,4 @@
-For a !pet command on/off state, have a mod-only function !beckon and !ignore (from Greater Dog fight) for on/off state.
-- Maybe have state off by default as it is a very spammable command.
-
 The !NERD command does a little too much to be a public command.  Should make that a mod only thing to keep it from being spammed.  Or remove it cause it's kinda silly and nobody cares. That may also be a reason to keep it.
+
+
+Made an on/off state for the !pet command.  State can be set in one chat without affecting other chats.  Probably could have done better.  Also that command is long as fuck.
