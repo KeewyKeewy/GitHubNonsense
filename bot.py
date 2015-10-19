@@ -33,8 +33,8 @@ chatters = []
 global admins
 admins = cfg.ADMINS
 
-
-
+global SILENT_MODE
+SILENT_MODE = False
 
 global con
 con = socket.socket()
@@ -91,11 +91,25 @@ def get_message(msg):
 
 
 def parse_message(sender, msg, channel):
-    HOI_CHECK = False
+    # --- Varialbe Definitions ---
+    global SILENT_MODE
+    
     FUCKER_CHECK = False
     BAN_CHECK = True
 
     CHAN = channel
+
+    options = {'!test': command_test,
+               '!pikmin4': command_pikmin4,
+               '!nerd': command_nerd,
+               '!getmods': get_mods,
+               '!amiamod': check_mod,}
+    options_one = {'!togglepet': command_pet_toggle,
+                   '!pettoggle': command_pet_toggle,
+                   '!pet': command_pet,
+                   '!silent': command_silence,}
+
+    # --- End Definitions ---
     
     if len(msg) >= 1:
         ban_msg = copy.deepcopy(msg)
@@ -107,49 +121,52 @@ def parse_message(sender, msg, channel):
             if j in ban_msg.lower():
                 command_timeout(CHAN, sender)
                 BAN_CHECK = False
-
-        if BAN_CHECK:
-            for i in msg:
-                if "hoi" in i.lower():
-                    HOI_CHECK = True
-                if i.lower() in FUCKER_WORDS:
-                    FUCKER_CHECK = True
-
-        if HOI_CHECK or FUCKER_CHECK:
-            if FUCKER_CHECK:    
-                command_fuckyou(CHAN, sender)
-            else:
-                command_hoi(CHAN)
-
-        if BAN_CHECK and not FUCKER_CHECK:         
-            options = {'!test': command_test,
-                       '!pikmin4': command_pikmin4,
-                       '!nerd': command_nerd,
-                       '!getmods': get_mods,
-                       '!amiamod': check_mod,}
-# !pet command moved to options_one in case of future state improvements
-            options_one = {'!togglepet': command_pet_toggle,
-                           '!pettoggle': command_pet_toggle,
-                           '!pet': command_pet,}
-     
-            if msg[0] in options:
-                if msg[0] == '!amiamod' or msg[0] == '!getmods':
-                    options[msg[0]](CHAN, sender)
-                    pass
-                else:   
-                    options[msg[0]](CHAN)
-            elif msg[0] in options_one:
+                
+        if msg[0] in options_one:
                 try:
-                    if msg[0] == '!togglepet' or msg[0] == '!pettoggle':
+                    if msg[0].lower() == '!silent':
                         options_one[msg[0]](CHAN, sender, msg[1])
-                    elif msg[0] == '!pet':
-                        options_one[msg[0]](CHAN)
-                    else:
-                        options_one[msg[0]](CHAN, msg[1])
                 except KeyError:
                     # Key is not present
                     send_message(CHAN, 'One parameter is required.')
                     pass
+                
+# ------ Commands silenced by silent mode ---------
+        
+        if SILENT_MODE:
+            if BAN_CHECK:
+                for j in FUCKER_WORDS:
+                    if j in ban_msg.lower():
+                        command_fuckyou(CHAN, sender)
+                        FUCKER_CHECK = True
+                    
+            if BAN_CHECK and not FUCKER_CHECK:
+                for i in msg:
+                    if "hoi" in i.lower():
+                        command_hoi(CHAN)
+                        
+
+            if BAN_CHECK and not FUCKER_CHECK:         
+                if msg[0] in options:
+                    if msg[0] == '!amiamod' or msg[0] == '!getmods':
+                        options[msg[0]](CHAN, sender)
+                        pass
+                    else:   
+                        options[msg[0]](CHAN)
+                elif msg[0] in options_one:
+                    try:
+                        if msg[0] == '!togglepet' or msg[0] == '!pettoggle':
+                            options_one[msg[0]](CHAN, sender, msg[1])
+                        elif msg[0] == '!pet':
+                            options_one[msg[0]](CHAN)
+                        else:
+                            options_one[msg[0]](CHAN, msg[1])
+                    except KeyError:
+                        # Key is not present
+                        send_message(CHAN, 'One parameter is required.')
+                        pass
+        else:
+            pass
 
 
 # -------------- End Helper Functions -------------------
@@ -219,6 +236,32 @@ def command_fuckyou(CHAN, name):
 str, str > msg"""
     send_message(CHAN, '/timeout ' + name + ' 5')
     send_message(CHAN, name + ' timed out because lol fuck you too.')
+
+def command_silence(CHAN, name, toggler=''):
+    """Toggles silent mode between ON/OFF (True/False).
+
+str, str, str -> none"""
+    global SILENT_MODE
+    if name in mods or name in admins:
+        print("check 1")
+        if toggler.lower() == 'on':
+            print("check 2")
+            SILENT_MODE = False
+            send_message(CHAN, 'Silent mode is on.')
+        elif toggler.lower() == 'off':
+            print('check 3')
+            SILENT_MODE = True
+            send_message(CHAN, 'Silent mode is off.')
+            pass
+        else:
+            print('check 4')
+            send_message(CHAN, 'Invalid arguement "' + toggler + '"')
+            pass
+    else:
+        print("Check 5")
+        send_message(CHAN, 'You do not have permission to use this command.')
+
+
 
 # ------------------- The Pet Commands -------------------------------
 
