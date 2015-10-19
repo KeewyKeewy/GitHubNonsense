@@ -27,14 +27,10 @@ FUCKER_WORDS = botcmds.FUCKER
 global mods
 global chatters
 
-mods = []
-chatters = {}
-
 global admins
 admins = cfg.ADMINS
 
 global SILENT_MODE
-SILENT_MODE = False
 
 global con
 con = socket.socket()
@@ -379,10 +375,16 @@ str, str, str, str, str -> none"""
     global TIME_SET
     global mods
     global chatters
+    global SILENT_MODE
     
     PET_COUNTER = 0
     PET_BOOL = True
     TIME_SET = time.time()
+
+    if CHAN in cfg.SILENT_AUTO_OFF:
+        SILENT_MODE = True
+    else:
+        SILENT_MODE = False
 
     while True:
         try:       

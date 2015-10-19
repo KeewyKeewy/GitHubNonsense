@@ -7,8 +7,9 @@ HOST = "irc.twitch.tv"              # the Twitch IRC server
 PORT = 6667                         # always use port 6667!
 NICK = "xxxxxxxxxxxxxxx"            # your Twitch username, lowercase
 PASS = "oauth:xxxxxxxxxxxxxxxxxxxx" # your Twitch OAuth token
-CHAN = ["#xxxxxxx",]                 # the channel(s) you want to join
-ADMINS = ["xxxxx",]                  # Twitch username of global admins
+CHAN = ["#xxxxxxx",]                # the channel(s) you want to join
+ADMINS = ["xxxxx",]                 # Twitch username of global admins
+SILENT_AUTO_OFF = ['#xxxxxxxx',]    # channels to automatically turn off silent mode in
 # -----------------------------------------------------------------------
 
 
