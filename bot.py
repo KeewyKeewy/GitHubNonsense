@@ -1,7 +1,6 @@
 # bot.py
 
-import cfg, re, botcmds, socket, time, copy, threading
-
+import cfg, re, botcmds, socket, time, copy, threading, os
 
 # Make sure you prefix the quotes with an 'r'!
 CHAT_MSG=re.compile(r"^:\w+!\w+@\w+\.tmi\.twitch\.tv PRIVMSG #\w+ :")
@@ -128,7 +127,8 @@ def parse_message(sender, msg, channel):
      
             if msg[0] in options:
                 if msg[0] == '!AmIAMod' or msg[0] == '!GetMods':
-                    options[msg[0]](CHAN, sender)
+##                    options[msg[0]](CHAN, sender)
+                    pass
                 else:   
                     options[msg[0]](CHAN)
 ##            elif msg[0] in options_one:
@@ -282,15 +282,12 @@ def start_bot(HOST, PORT, PASS, NICK, CHAN):
     """Takes the cfg.py settings and starts the while loop that runs the bot.
 
 str, str, str, str, str -> none"""
+    print("Starting bot login to " + CHAN)
 
+    con.connect((HOST, PORT))
+    send_pass(PASS)
+    send_nick(NICK)
 
-    try:
-        con.connect((HOST, PORT))
-        send_pass(PASS)
-        send_nick(NICK)
-    except:
-        print("Skipping login info...")
-        pass
 
 
 
@@ -351,11 +348,12 @@ str, str, str, str, str -> none"""
 # ---------- End Bot Function -----------
 
 
-# ------ Thread Testing --------
+# ------ Threading Testing --------
 
 
 for channel in CHAN_CFG:
     print("Connecting to " + channel)
-    threading.Thread(group=None, target=start_bot, name=channel, args=(HOST_CFG, PORT_CFG, PASS_CFG, NICK_CFG, channel)).start()
+    t = threading.Thread(target=start_bot, args=(HOST_CFG, PORT_CFG, PASS_CFG, NICK_CFG, channel))
+    t.start()
     time.sleep(10)
     print("Connected")
