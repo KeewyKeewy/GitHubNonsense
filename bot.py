@@ -28,6 +28,7 @@ global mods
 global chatters
 
 mods = []
+chatters = []
 
 global admins
 admins = cfg.ADMINS
@@ -123,17 +124,17 @@ def parse_message(sender, msg, channel):
         if BAN_CHECK and not FUCKER_CHECK:         
             options = {'!test': command_test,
                        '!pikmin4': command_pikmin4,
-                       '!NERD': command_nerd,
-                       '!GetMods': get_mods,
-                       '!AmIAMod': check_mod,}
+                       '!nerd': command_nerd,
+                       '!getmods': get_mods,
+                       '!amiamod': check_mod,}
 # !pet command moved to options_one in case of future state improvements
             options_one = {'!togglepet': command_pet_toggle,
                            '!pettoggle': command_pet_toggle,
                            '!pet': command_pet,}
      
             if msg[0] in options:
-                if msg[0] == '!AmIAMod' or msg[0] == '!GetMods':
-##                    options[msg[0]](CHAN, sender)
+                if msg[0] == '!amiamod' or msg[0] == '!getmods':
+                    options[msg[0]](CHAN, sender)
                     pass
                 else:   
                     options[msg[0]](CHAN)
@@ -187,6 +188,8 @@ string > none"""
     send_message(CHAN, "GET FUCKO'D")
     
 def get_mods(CHAN, username):
+    global mods
+    global chatters
     response = urlopen('https://tmi.twitch.tv/group/user/' + CHAN[1:] + '/chatters')
     readable = response.read().decode('utf-8')
     chatlist = loads(readable)
@@ -195,6 +198,8 @@ def get_mods(CHAN, username):
     print ("Reloaded the Modlist")
     
 def check_mod(CHAN, username):
+    global mods
+    global chatters
     print(username)
     if username in mods:
         send_message(CHAN, "Yes")
@@ -328,9 +333,12 @@ str, str, str, str, str -> none"""
 
     data = ""
 
+# Restating global variables cause this is now a function.
     global PET_COUNTER
     global PET_BOOL
     global TIME_SET
+    global mods
+    global chatters
     
     PET_COUNTER = 0
     PET_BOOL = True
