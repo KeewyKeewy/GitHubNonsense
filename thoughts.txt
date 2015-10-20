@@ -1,1 +1,59 @@
-None for now.
+
+State machine shenanigans: update as needed until it's in place. Then update the state machine itself, obviously
+STATES:
+- Silent: bot says nothing but still bans links
+	- NORMAL COMMANDS:
+		-fucker
+		-banables
+	- MOD COMMANDS:
+		-!getmods
+		-!normalmode
+		-!modmode
+		-!gamemode
+
+- Normal: bot has all the silly commands available to everyone
+	- NORMAL COMMANDS:
+		-!amiamod
+		-!pet
+		-!nerd
+		-!pikmin4
+		-hoi
+		-fucker
+		-banables
+	- MOD COMMANDS:
+		-!togglepet
+        -!pettoggle
+        -!getmods
+		-!silentmode
+		-!modmode
+		-!gamemode
+
+- Mods Only: all bot commands are limited to mods
+	- NORMAL COMMANDS:
+		-fucker
+		-banables
+	- MOD COMMANDS:
+		-!normalmode
+		-!silentmode
+		-!gamemode
+		-!togglepet
+        -!pettoggle
+        -!amiamod
+        -!getmods
+		-!pet
+		-!nerd
+		-!pikmin4
+		-hoi
+		-fucker
+		-banables
+
+
+- Game Mode: Normal commands are removed and bot enters game modes
+	- NORMAL COMMANDS:
+		-fucker
+		-banables
+	- MOD COMMANDS:
+		-!getmods
+		-!normalmode
+		-!modmode
+		-!silentmode
