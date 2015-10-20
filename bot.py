@@ -35,6 +35,92 @@ global SILENT_MODE
 global con
 con = socket.socket()
 
+# ------------------ Start State Classes ------------------------
+
+class StateMachine(object):
+    """Handles state transition info as well as what state this instance of the bot has.
+        Each instance of a bot should have one. May want to put any and all bot info in this later"""
+    def __init__(self, arg):
+        self.transitions = {
+            "!normal":NormalState,
+            "!silent":SilentState,
+            "!modsonly":ModState,
+            "!game":GameState,
+        }
+        self.currentState = NormalState
+
+    def get_state():
+        return self.currentState
+
+    def get_state_name():
+        if self.currentState == NormalState:
+            return "normal"
+        elif self.currentState == SilentState:
+            return "silent"
+        elif self.currentState == ModState:
+            return "modsonly"
+        elif self.currentState == GameState:
+            return "game"
+
+class NormalState(object):
+    """Contains silly commands for all viewers, and some mod only commands"""
+    def __init__(self, arg):
+        self.commands = {
+            '!test': command_test,
+            '!pikmin4': command_pikmin4,
+            '!getmods': get_mods,
+            '!amiamod': command_am_i_a_mod,
+            '!pet': command_pet,
+            '!nerd': command_nerd,}
+        # put in banables and fucker words because they're technically commands
+        self.modCommands = {'!togglepet': command_pet_toggle,
+            '!pettoggle': command_pet_toggle,
+            "!silent": change_state,
+            "!modsonly": change_state,
+            "!game": change_state,}
+
+class SilentState(object):
+    """the bot says nothing but still continues banning work"""
+    def __init__(self, arg):
+        self.commands = {}
+        # put in banables and fucker words because they're technically commands
+        self.modCommands = {
+            "!normal": change_state,,
+            "!modsonly": change_state,
+            "!game": change_state,}
+
+class ModState(object):
+    """Only mods have access to all commands the bot can do"""
+    def __init__(self, arg):
+        self.commands = {}
+        # put in banables and fucker words because they're technically commands
+        self.modCommands = {'!togglepet': command_pet_toggle,
+            '!pettoggle': command_pet_toggle,
+            '!test': command_test,
+            '!pikmin4': command_pikmin4,
+            '!getmods': get_mods,
+            '!amiamod': command_am_i_a_mod,
+            '!pet': command_pet,
+            '!nerd': command_nerd,
+            "!normal": change_state,
+            "!silent": change_state,
+            "!modsonly": change_state,
+            "!game": change_state,}
+
+class GameState(object):
+    """Only commands relevant to the game or banable actions are active"""
+    def __init__(self, arg):
+        self.commands = {}
+        # put in banables and fucker words because they're technically commands
+        self.modCommands = {
+            "!normal": change_state,
+            "!silent": change_state,
+            "!modsonly": change_state,}
+        
+
+def change_state(statemachine, newstate):
+    statemachine.currentState = newstate
+
 # -------------------- Start Functions -----------------------------
 
 def send_pong(msg):
@@ -86,24 +172,24 @@ def get_message(msg):
     return result
 
 
-def parse_message(sender, msg, channel):
+def parse_message(sender, msg, channel, mybotstate):
     # --- Varialbe Definitions ---
-    global SILENT_MODE
+    #global SILENT_MODE
     
     FUCKER_CHECK = False
     BAN_CHECK = True
 
     CHAN = channel
 
-    options = {'!test': command_test,
-               '!pikmin4': command_pikmin4,
-               '!getmods': get_mods,
-               '!amiamod': check_mod,}
-    options_one = {'!togglepet': command_pet_toggle,
-                   '!pettoggle': command_pet_toggle,
-                   '!pet': command_pet,
-                   '!nerd': command_nerd,}
-    options_silent = {'!silent': command_silence,}
+    # options = {'!test': command_test,
+    #            '!pikmin4': command_pikmin4,
+    #            '!getmods': get_mods,
+    #            '!amiamod': check_mod,}
+    # options_one = {'!togglepet': command_pet_toggle,
+    #                '!pettoggle': command_pet_toggle,
+    #                '!pet': command_pet,
+    #                '!nerd': command_nerd,}
+    # options_silent = {'!silent': command_silence,}
 
     # --- End Definitions ---
     
@@ -117,52 +203,70 @@ def parse_message(sender, msg, channel):
             if j in ban_msg.lower():
                 command_timeout(CHAN, sender)
                 BAN_CHECK = False
+
+        if BAN_CHECK:
+            for i in FUCKER_WORDS:
+                if j in ban_msg.lower():
+                    command_fuckyou(CHAN, sender)
+                    FUCKER_CHECK = True
+
+        #now we check each part of the state machine
+        for i in msg:
+            if i.lower() in mybotstate.currentState.commands:
+                mybotstate.currentState.commands[i]()
+                #TODO: will need to updae this to support commands with parameters
+            elif i.lower() in mybotstate.currentState.modCommands and check_mod(channel, sender):
+                if i.lower() in mybotstate.transitions:
+                    #transition to next
+                    mybotstate.currentState.modCommands[i](mybotstate.transitions[i])
+                else:
+                    mybotstate.currentState.modCommands[i]()
+
+#         if msg[0] in options_silent:
+#                 try:
+#                     if msg[0].lower() == '!silent':
+#                         options_silent[msg[0]](CHAN, sender, msg[1])
+#                 except KeyError:
+#                     # Key is not present
+#                     send_message(CHAN, 'One parameter is required.')
+#                     pass
                 
-        if msg[0] in options_silent:
-                try:
-                    if msg[0].lower() == '!silent':
-                        options_silent[msg[0]](CHAN, sender, msg[1])
-                except KeyError:
-                    # Key is not present
-                    send_message(CHAN, 'One parameter is required.')
-                    pass
-                
-# ------ Commands silenced by silent mode ---------
+# # ------ Commands silenced by silent mode ---------
         
-        if SILENT_MODE:
-            if BAN_CHECK:
-                for j in FUCKER_WORDS:
-                    if j in ban_msg.lower():
-                        command_fuckyou(CHAN, sender)
-                        FUCKER_CHECK = True
+#         if SILENT_MODE:
+#             if BAN_CHECK:
+#                 for j in FUCKER_WORDS:
+#                     if j in ban_msg.lower():
+#                         command_fuckyou(CHAN, sender)
+#                         FUCKER_CHECK = True
                     
-            if BAN_CHECK and not FUCKER_CHECK:
-                for i in msg:
-                    if "hoi" in i.lower():
-                        command_hoi(CHAN)
+#             if BAN_CHECK and not FUCKER_CHECK:
+#                 for i in msg:
+#                     if "hoi" in i.lower():
+#                         command_hoi(CHAN)
                         
 
-            if BAN_CHECK and not FUCKER_CHECK:         
-                if msg[0] in options:
-                    if msg[0] == '!amiamod' or msg[0] == '!getmods':
-                        options[msg[0]](CHAN, sender)
-                        pass
-                    else:   
-                        options[msg[0]](CHAN)
-                elif msg[0] in options_one:
-                    try:
-                        if msg[0] == '!togglepet' or msg[0] == '!pettoggle':
-                            options_one[msg[0]](CHAN, sender, msg[1])
-                        elif msg[0] == '!pet':
-                            options_one[msg[0]](CHAN)
-                        else:
-                            options_one[msg[0]](CHAN, sender)
-                    except KeyError:
-                        # Key is not present
-                        send_message(CHAN, 'One parameter is required.')
-                        pass
-        else:
-            pass
+#             if BAN_CHECK and not FUCKER_CHECK:         
+#                 if msg[0] in options:
+#                     if msg[0] == '!amiamod' or msg[0] == '!getmods':
+#                         options[msg[0]](CHAN, sender)
+#                         pass
+#                     else:   
+#                         options[msg[0]](CHAN)
+#                 elif msg[0] in options_one:
+#                     try:
+#                         if msg[0] == '!togglepet' or msg[0] == '!pettoggle':
+#                             options_one[msg[0]](CHAN, sender, msg[1])
+#                         elif msg[0] == '!pet':
+#                             options_one[msg[0]](CHAN)
+#                         else:
+#                             options_one[msg[0]](CHAN, sender)
+#                     except KeyError:
+#                         # Key is not present
+#                         send_message(CHAN, 'One parameter is required.')
+#                         pass
+#         else:
+#             pass
 
 
 # -------------- End Helper Functions -------------------
@@ -215,6 +319,15 @@ def get_mods(CHAN, username):
     print ("Reloaded the Modlist")
     
 def check_mod(CHAN, username):
+    global mods
+    global chatters
+    global admins
+    if username in mods or username in admins:
+        return True
+    else:
+        return False
+
+def command_am_i_a_mod(CHAN, username):
     global mods
     global chatters
     global admins
@@ -377,14 +490,16 @@ str, str, str, str, str -> none"""
     global chatters
     global SILENT_MODE
     
+#create a new state machine instance
+    BotState = StateMachine()
+
     PET_COUNTER = 0
     PET_BOOL = True
     TIME_SET = time.time()
 
     if CHAN in cfg.SILENT_AUTO_OFF:
-        SILENT_MODE = True
-    else:
-        SILENT_MODE = False
+        #SILENT_MODE = True
+        change_state(BotState, BotState.transitions["!silent"])
 
     while True:
         try:       
@@ -414,7 +529,7 @@ str, str, str, str, str -> none"""
                     if line[1] == 'PRIVMSG':
                         sender = get_sender(line[0])
                         message = get_message(line)
-                        parse_message(sender, message, CHAN)
+                        parse_message(sender, message, CHAN, BotState)
 
                         print(sender + ": " + message)
 
