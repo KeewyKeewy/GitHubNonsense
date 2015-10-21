@@ -1,6 +1,6 @@
 # bot.py
 
-import cfg, re, botcmds, socket, time, copy
+import cfg, re, botcmds, socket, time, copy, pet
 from multiprocessing import Process
 
 # Make sure you prefix the quotes with an 'r'!
@@ -206,14 +206,14 @@ def parse_message(sender, msg, channel, mybotstate):
         #now we check each part of the state machine
         for i in msg:
             if i.lower() in mybotstate.currentState.commands:
-                mybotstate.currentState.commands[i](channel, sender)
+                mybotstate.currentState.commands[i.lower()](channel, sender)
                 #TODO: will need to updae this to support commands with parameters
             elif i.lower() in mybotstate.currentState.modCommands and check_mod(channel, sender):
                 if i.lower() in mybotstate.transitions:
                     #transition to next
-                    change_state(mybotstate, mybotstate.transitions[i])
+                    change_state(mybotstate, mybotstate.transitions[i.lower()])
                 else:
-                    mybotstate.currentState.modCommands[i](channel, sender)
+                    mybotstate.currentState.modCommands[i.lower()](channel, sender)
 
 
 # -------------- End Helper Functions -------------------
@@ -269,7 +269,7 @@ def check_mod(CHAN, sender):
     global mods
     global chatters
     global admins
-    if sender in mods or username in admins:
+    if sender in mods or sender in admins:
         return True
     else:
         return False
@@ -307,7 +307,7 @@ str, str, str -> none"""
     global PET_BOOL
     if PET_BOOL:
         PET_BOOL = False
-        send_message(CHAN, 'KeewyDog Lesser Dog got closer.')
+        send_message(CHAN, 'Lesser Dog got closer.')
     elif not PET_BOOL:
         PET_BOOL = True
         send_message(CHAN, 'Lesser Dog walked away.')
@@ -318,70 +318,16 @@ str, str, str -> none"""
 def command_pet(CHAN, sender):
     global PET_COUNTER
     global PET_BOOL
+    global TIME_SET
     if  PET_BOOL:
         send_message(CHAN, 'KeewyDog Lesser Dog got excited.')
 
     else:
-        if PET_COUNTER < 3:
-            send_message(CHAN, 'KeewyDog')
-            send_message(CHAN, 'Lesser Dog got excited.')
-            PET_COUNTER = PET_COUNTER + 1
-            TIME_SET = time.time()
-            
-        elif PET_COUNTER > 2 and PET_COUNTER < 6:
-            send_message(CHAN, 'KeewyDog')
-            send_message(CHAN, 'KeewyLesser')
-            send_message(CHAN, "It's already overexcited.")
-            PET_COUNTER = PET_COUNTER + 1
-            
-        elif PET_COUNTER > 5 and PET_COUNTER < 9:
-            send_message(CHAN, 'KeewyDog')
-            send_message(CHAN, 'KeewyLesser')
-            send_message(CHAN, 'KeewyLesser')
-            send_message(CHAN, "Lesser Dog is overstimulated.")
-            PET_COUNTER = PET_COUNTER + 1
-            
-        elif PET_COUNTER > 8 and PET_COUNTER < 12:
-            send_message(CHAN, 'KeewyLesser')
-            send_message(CHAN, 'KeewyLesser')
-            send_message(CHAN, 'KeewyLesser')
-            send_message(CHAN, "Lesser Dog shows no sign of stopping.")
-            PET_COUNTER = PET_COUNTER + 1
-
-        elif PET_COUNTER > 11 and PET_COUNTER < 15:
-            send_message(CHAN, 'KeewyLesser KeewygoD')
-            send_message(CHAN, 'KeewyLesser')
-            send_message(CHAN, 'KeewyLesser')
-            send_message(CHAN, "You can reach Lesser Dog again.")
-            PET_COUNTER = PET_COUNTER + 1
-
-        elif PET_COUNTER > 14 and PET_COUNTER < 18:
-            send_message(CHAN, 'KeewyLesser KeewyLesser')
-            send_message(CHAN, 'KeewyLesser KeewygoD')
-            send_message(CHAN, 'KeewyLesser')
-            send_message(CHAN, "It's possible that you may have a problem.")
-            PET_COUNTER = PET_COUNTER + 1
-            
-        elif PET_COUNTER > 17 and PET_COUNTER < 21:
-            send_message(CHAN, 'KeewyLesser KeewyLesser')
-            send_message(CHAN, 'KeewyLesser KeewyLesser')
-            send_message(CHAN, 'KeewyLesser KeewygoD')
-            send_message(CHAN, "Lesser Dog is unpettable but appreciates the attempt.")
-            PET_COUNTER = PET_COUNTER + 1
-
-        elif PET_COUNTER > 20 and PET_COUNTER < 23:
-            send_message(CHAN, 'KeewyLesser KeewyLesser')
-            send_message(CHAN, 'KeewyLesser KeewyLesser')
-            send_message(CHAN, 'KeewyLesser KeewyLesser')
-            send_message(CHAN, "Lesser Dog has gone where no dog has gone before.")
-            PET_COUNTER = PET_COUNTER + 1
-
-        elif PET_COUNTER > 22:
-            send_message(CHAN, "Really...")
-            PET_COUNTER = PET_COUNTER + 1
-        else:
-            send_message(CHAN, "Lesser Dog is broken...")
-
+        i = pet.pet(PET_COUNTER)
+        PET_COUNTER = PET_COUNTER + 1
+        TIME_SET = time.time()
+        for message in i:
+            send_message(CHAN, message)
     
 # ------------- End Command Functions -----------------
 
@@ -456,7 +402,7 @@ str, str, str, str, str -> none"""
 
                         print(sender + ": " + message)
 
-            if (TIME_SET - time.time()) < -120 or (TIME_SET - time.time())> 0:
+            if (TIME_SET - time.time()) < -30 or (TIME_SET - time.time())> 0:
                 PET_COUNTER = 0
                 print("PET_COUNTER has reset.")
                 TIME_SET = time.time()

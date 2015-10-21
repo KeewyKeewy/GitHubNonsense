@@ -5,25 +5,3 @@ Idea: Mario Maker Mode:
 		-> bot spits out code w/ user name of who sent said code
 		
 _____________________________________________________
-
-Idea: Pet as a function in a separate module that returns a list of strings to be sent as a message.
-
-ex: in bot.py:
-
-from pet.py import pet
-
-variable = pet(PET_COUNTER)
-
-for line in variable:
-	send message("blah")
-	
-ex: in pet.py:
-
-def pet(counter):
-	"""Blah"""
-	if counter < ...:
-	return ['KeewyDog', 'Lesser Dog got excited.']
-	
-	if so on so forth
-	
-______________________________________________________
