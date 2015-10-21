@@ -1,59 +1,29 @@
+Idea: Mario Maker Mode:
+	- scan for code format
+	- save w/ user name
+	- when streamer wants next code
+		-> bot spits out code w/ user name of who sent said code
+		
+_____________________________________________________
 
-State machine shenanigans: update as needed until it's in place. Then update the state machine itself, obviously
-STATES:
-- Silent: bot says nothing but still bans links
-	- NORMAL COMMANDS:
-		-fucker
-		-banables
-	- MOD COMMANDS:
-		-!getmods
-		-!normalmode
-		-!modmode
-		-!gamemode
+Idea: Pet as a function in a separate module that returns a list of strings to be sent as a message.
 
-- Normal: bot has all the silly commands available to everyone
-	- NORMAL COMMANDS:
-		-!amiamod
-		-!pet
-		-!nerd
-		-!pikmin4
-		-hoi
-		-fucker
-		-banables
-	- MOD COMMANDS:
-		-!togglepet
-        -!pettoggle
-        -!getmods
-		-!silentmode
-		-!modmode
-		-!gamemode
+ex: in bot.py:
 
-- Mods Only: all bot commands are limited to mods
-	- NORMAL COMMANDS:
-		-fucker
-		-banables
-	- MOD COMMANDS:
-		-!normalmode
-		-!silentmode
-		-!gamemode
-		-!togglepet
-        -!pettoggle
-        -!amiamod
-        -!getmods
-		-!pet
-		-!nerd
-		-!pikmin4
-		-hoi
-		-fucker
-		-banables
+from pet.py import pet
 
+variable = pet(PET_COUNTER)
 
-- Game Mode: Normal commands are removed and bot enters game modes
-	- NORMAL COMMANDS:
-		-fucker
-		-banables
-	- MOD COMMANDS:
-		-!getmods
-		-!normalmode
-		-!modmode
-		-!silentmode
+for line in variable:
+	send message("blah")
+	
+ex: in pet.py:
+
+def pet(counter):
+	"""Blah"""
+	if counter < ...:
+	return ['KeewyDog', 'Lesser Dog got excited.']
+	
+	if so on so forth
+	
+______________________________________________________
