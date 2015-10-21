@@ -40,14 +40,14 @@ con = socket.socket()
 class StateMachine(object):
     """Handles state transition info as well as what state this instance of the bot has.
         Each instance of a bot should have one. May want to put any and all bot info in this later"""
-    def __init__(self, arg):
+    def __init__(self):
         self.transitions = {
             "!normal":NormalState,
             "!silent":SilentState,
             "!modsonly":ModState,
             "!game":GameState,
         }
-        self.currentState = NormalState
+        self.currentState = NormalState()
 
     def get_state():
         return self.currentState
@@ -64,14 +64,15 @@ class StateMachine(object):
 
 class NormalState(object):
     """Contains silly commands for all viewers, and some mod only commands"""
-    def __init__(self, arg):
+    def __init__(self):
         self.commands = {
             '!test': command_test,
             '!pikmin4': command_pikmin4,
             '!getmods': get_mods,
             '!amiamod': command_am_i_a_mod,
             '!pet': command_pet,
-            '!nerd': command_nerd,}
+            '!nerd': command_nerd,
+            'hoi': command_hoi,}
         # put in banables and fucker words because they're technically commands
         self.modCommands = {'!togglepet': command_pet_toggle,
             '!pettoggle': command_pet_toggle,
@@ -81,20 +82,22 @@ class NormalState(object):
 
 class SilentState(object):
     """the bot says nothing but still continues banning work"""
-    def __init__(self, arg):
+    def __init__(self):
         self.commands = {}
         # put in banables and fucker words because they're technically commands
         self.modCommands = {
-            "!normal": change_state,,
+            "!normal": change_state,
             "!modsonly": change_state,
             "!game": change_state,}
 
 class ModState(object):
     """Only mods have access to all commands the bot can do"""
-    def __init__(self, arg):
+    def __init__(self):
         self.commands = {}
         # put in banables and fucker words because they're technically commands
-        self.modCommands = {'!togglepet': command_pet_toggle,
+        self.modCommands = {
+        	'hoi': command_hoi,
+        	'!togglepet': command_pet_toggle,
             '!pettoggle': command_pet_toggle,
             '!test': command_test,
             '!pikmin4': command_pikmin4,
@@ -109,7 +112,7 @@ class ModState(object):
 
 class GameState(object):
     """Only commands relevant to the game or banable actions are active"""
-    def __init__(self, arg):
+    def __init__(self):
         self.commands = {}
         # put in banables and fucker words because they're technically commands
         self.modCommands = {
@@ -119,7 +122,7 @@ class GameState(object):
         
 
 def change_state(statemachine, newstate):
-    statemachine.currentState = newstate
+    statemachine.currentState = newstate()
 
 # -------------------- Start Functions -----------------------------
 
@@ -181,16 +184,6 @@ def parse_message(sender, msg, channel, mybotstate):
 
     CHAN = channel
 
-    # options = {'!test': command_test,
-    #            '!pikmin4': command_pikmin4,
-    #            '!getmods': get_mods,
-    #            '!amiamod': check_mod,}
-    # options_one = {'!togglepet': command_pet_toggle,
-    #                '!pettoggle': command_pet_toggle,
-    #                '!pet': command_pet,
-    #                '!nerd': command_nerd,}
-    # options_silent = {'!silent': command_silence,}
-
     # --- End Definitions ---
     
     if len(msg) >= 1:
@@ -213,60 +206,14 @@ def parse_message(sender, msg, channel, mybotstate):
         #now we check each part of the state machine
         for i in msg:
             if i.lower() in mybotstate.currentState.commands:
-                mybotstate.currentState.commands[i]()
+                mybotstate.currentState.commands[i](channel)
                 #TODO: will need to updae this to support commands with parameters
             elif i.lower() in mybotstate.currentState.modCommands and check_mod(channel, sender):
                 if i.lower() in mybotstate.transitions:
                     #transition to next
-                    mybotstate.currentState.modCommands[i](mybotstate.transitions[i])
+                    change_state(mybotstate, mybotstate.transitions[i])
                 else:
-                    mybotstate.currentState.modCommands[i]()
-
-#         if msg[0] in options_silent:
-#                 try:
-#                     if msg[0].lower() == '!silent':
-#                         options_silent[msg[0]](CHAN, sender, msg[1])
-#                 except KeyError:
-#                     # Key is not present
-#                     send_message(CHAN, 'One parameter is required.')
-#                     pass
-                
-# # ------ Commands silenced by silent mode ---------
-        
-#         if SILENT_MODE:
-#             if BAN_CHECK:
-#                 for j in FUCKER_WORDS:
-#                     if j in ban_msg.lower():
-#                         command_fuckyou(CHAN, sender)
-#                         FUCKER_CHECK = True
-                    
-#             if BAN_CHECK and not FUCKER_CHECK:
-#                 for i in msg:
-#                     if "hoi" in i.lower():
-#                         command_hoi(CHAN)
-                        
-
-#             if BAN_CHECK and not FUCKER_CHECK:         
-#                 if msg[0] in options:
-#                     if msg[0] == '!amiamod' or msg[0] == '!getmods':
-#                         options[msg[0]](CHAN, sender)
-#                         pass
-#                     else:   
-#                         options[msg[0]](CHAN)
-#                 elif msg[0] in options_one:
-#                     try:
-#                         if msg[0] == '!togglepet' or msg[0] == '!pettoggle':
-#                             options_one[msg[0]](CHAN, sender, msg[1])
-#                         elif msg[0] == '!pet':
-#                             options_one[msg[0]](CHAN)
-#                         else:
-#                             options_one[msg[0]](CHAN, sender)
-#                     except KeyError:
-#                         # Key is not present
-#                         send_message(CHAN, 'One parameter is required.')
-#                         pass
-#         else:
-#             pass
+                    mybotstate.currentState.modCommands[i](channel)
 
 
 # -------------- End Helper Functions -------------------
@@ -497,8 +444,7 @@ str, str, str, str, str -> none"""
     PET_BOOL = True
     TIME_SET = time.time()
 
-    if CHAN in cfg.SILENT_AUTO_OFF:
-        #SILENT_MODE = True
+    if CHAN not in cfg.SILENT_AUTO_OFF:
         change_state(BotState, BotState.transitions["!silent"])
 
     while True:
