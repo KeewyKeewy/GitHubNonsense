@@ -49,6 +49,4 @@ cfg.pyc
 __pycache__/botcmds.cpython-34.pyc
 __pycache__/cfg.cpython-34.pyc
 bot.pyc
-
-__pycache__/botcmds.cpython-35.pyc
-__pycache__/cfg.cpython-35.pyc
+*.pyc
