@@ -282,7 +282,7 @@ def command_pet(CHAN):
     global PET_COUNTER
     global PET_BOOL
     if  PET_BOOL:
-        send_message(CHAN, 'Lesser Dog got excited.')
+        send_message(CHAN, 'KeewyDog Lesser Dog got excited.')
 
     else:
         if PET_COUNTER < 3:
