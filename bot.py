@@ -206,45 +206,45 @@ def parse_message(sender, msg, channel, mybotstate):
         #now we check each part of the state machine
         for i in msg:
             if i.lower() in mybotstate.currentState.commands:
-                mybotstate.currentState.commands[i](channel)
+                mybotstate.currentState.commands[i](channel, sender)
                 #TODO: will need to updae this to support commands with parameters
             elif i.lower() in mybotstate.currentState.modCommands and check_mod(channel, sender):
                 if i.lower() in mybotstate.transitions:
                     #transition to next
                     change_state(mybotstate, mybotstate.transitions[i])
                 else:
-                    mybotstate.currentState.modCommands[i](channel)
+                    mybotstate.currentState.modCommands[i](channel, sender)
 
 
 # -------------- End Helper Functions -------------------
 
 
 # -------------------- Start Command Functions -----------------
-
-def command_test(CHAN):
+# ALL COMMANDS REQUIRE CHAN AND SENDER, EVEN IF THEY DON'T USE IT
+def command_test(CHAN, sender):
     """A command to test if the bot is working.
 
 str > none"""
     send_message(CHAN, "Hope I'm not broken.")
 
-def command_hoi(CHAN):
+def command_hoi(CHAN, sender):
     """hOI!
 
 str > none"""
     send_message(CHAN, "hOI ! ! !")
 
 
-def command_pikmin4(CHAN):
+def command_pikmin4(CHAN, sender):
     """A command to express the hype that is Pikmin 4.
 
 str > none"""
     send_message(CHAN, "PIKMIN 4 CoolCat")
 
-def command_nerd(CHAN, name):
+def command_nerd(CHAN, sender):
     """A command to poke fun at the nerds in chat.
 
 string > none"""
-    if name in mods or name in admins:
+    if sender in mods or sender in admins:
         send_message(CHAN, "FrankerZ ")
         send_message(CHAN, "FrankerZ FrankerZ ")
         send_message(CHAN, "FrankerZ FrankerZ FrankerZ ")
@@ -254,7 +254,7 @@ string > none"""
     else:
         send_message(CHAN, 'lol nerd you do not have permission to use this command.')
     
-def get_mods(CHAN, username):
+def get_mods(CHAN, sender):
     global mods
     global chatters
     response = urlopen('https://tmi.twitch.tv/group/user/' + CHAN[1:] + '/chatters')
@@ -265,84 +265,61 @@ def get_mods(CHAN, username):
     mods = chatters['moderators']
     print ("Reloaded the Modlist")
     
-def check_mod(CHAN, username):
+def check_mod(CHAN, sender):
     global mods
     global chatters
     global admins
-    if username in mods or username in admins:
+    if sender in mods or username in admins:
         return True
     else:
         return False
 
-def command_am_i_a_mod(CHAN, username):
+def command_am_i_a_mod(CHAN, sender):
     global mods
     global chatters
     global admins
-    if username in mods or username in admins:
-        send_message(CHAN, "Yes")
+    if sender in mods or sender in admins:
+        send_message(CHAN, "Yes, " + sender + ", obviously")
     else:
-        send_message(CHAN, "No, " + username + " , you aren't")
+        send_message(CHAN, "No, " + sender + ", you aren't")
 
-def command_timeout(CHAN, name):
+def command_timeout(CHAN, sender):
     """Uses the /timeout command to timeout a user.
 
 str, str > msg"""
-    send_message(CHAN, '/timeout ' + name + ' 60')
-    send_message(CHAN, name + ' timed out because of shortened link.')
+    send_message(CHAN, '/timeout ' + sender + ' 60')
+    send_message(CHAN, sender + ' timed out because of shortened link.')
     
-def command_fuckyou(CHAN, name):
+def command_fuckyou(CHAN, sender):
     """Uses the /timeout command cause lol fuck you too.
 
 str, str > msg"""
-    send_message(CHAN, '/timeout ' + name + ' 5')
-    send_message(CHAN, name + ' timed out because lol fuck you too.')
-
-def command_silence(CHAN, name, toggler=''):
-    """Toggles silent mode between ON/OFF (True/False).
-
-str, str, str -> none"""
-    global SILENT_MODE
-    if name in mods or name in admins:
-        if toggler.lower() == 'on':
-            SILENT_MODE = False
-            send_message(CHAN, 'Silent mode is on.')
-        elif toggler.lower() == 'off':
-            SILENT_MODE = True
-            send_message(CHAN, 'Silent mode is off.')
-            pass
-        else:
-            send_message(CHAN, 'Invalid arguement "' + toggler + '"')
-            pass
-    else:
-        send_message(CHAN, 'You do not have permission to use this command.')
-
+    send_message(CHAN, '/timeout ' + sender + ' 5')
+    send_message(CHAN, sender + ' timed out because lol fuck you too.')
 
 
 # ------------------- The Pet Commands -------------------------------
 
-def command_pet_toggle(CHAN, name, petstr = ""):
+def command_pet_toggle(CHAN, sender):
     """Switches petting between short and long form. Only works for mods.
 
 str, str, str -> none"""
     global PET_BOOL
-    if name in mods or name in admins:
-        if petstr.lower() == 'on':
-            PET_BOOL = False
-            send_message(CHAN, 'Lesser Dog got closer.')
-        elif petstr.lower() == 'off':
-            PET_BOOL = True
-            send_message(CHAN, 'Lesser Dog walked away.')
-        else:
-            send_message(CHAN, 'Invalid arguement "' + petstr + '"')
+    if PET_BOOL:
+        PET_BOOL = False
+        send_message(CHAN, 'KeewyDog Lesser Dog got closer.')
+    elif not PET_BOOL:
+        PET_BOOL = True
+        send_message(CHAN, 'Lesser Dog walked away.')
     else:
-        send_message(CHAN, 'You do not have permission to use this command.')
+        send_message(CHAN, 'Invalid arguement "' + petstr + '"')
 
 
-def command_pet(CHAN):
+def command_pet(CHAN, sender):
     global PET_COUNTER
     global PET_BOOL
     if  PET_BOOL:
-        send_message(CHAN, 'Lesser Dog got excited.')
+        send_message(CHAN, 'KeewyDog Lesser Dog got excited.')
 
     else:
         if PET_COUNTER < 3:
