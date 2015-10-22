@@ -5,3 +5,9 @@ Idea: Mario Maker Mode:
 		-> bot spits out code w/ user name of who sent said code
 		
 _____________________________________________________
+
+
+Idea: Quote command:
+
+have a !quote command that sends a message of a random quote form a list of quotes.
+And a !writequote command for mods to save new quotes to the file.
