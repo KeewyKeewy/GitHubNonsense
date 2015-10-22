@@ -1,6 +1,6 @@
 # bot.py
 
-import cfg, re, botcmds, socket, time, copy, pet
+import cfg, re, botcmds, socket, time, copy, pet, random
 from multiprocessing import Process
 
 # Make sure you prefix the quotes with an 'r'!
@@ -72,7 +72,9 @@ class NormalState(object):
             '!amiamod': command_am_i_a_mod,
             '!pet': command_pet,
             '!nerd': command_nerd,
-            'hoi': command_hoi,}
+            'hoi': command_hoi,
+            '!rimshot':command_rimshot,
+            '!sagewisdom' : command_sage_wisdom,}
         # put in banables and fucker words because they're technically commands
         self.modCommands = {'!togglepet': command_pet_toggle,
             '!pettoggle': command_pet_toggle,
@@ -108,7 +110,9 @@ class ModState(object):
             "!normal": change_state,
             "!silent": change_state,
             "!modsonly": change_state,
-            "!game": change_state,}
+            "!game": change_state,
+            '!rimshot': command_rimshot,
+            '!sagewisdom' : command_sage_wisdom,}
 
 class GameState(object):
     """Only commands relevant to the game or banable actions are active"""
@@ -297,6 +301,23 @@ str, str > msg"""
     send_message(CHAN, '/timeout ' + sender + ' 5')
     send_message(CHAN, sender + ' timed out because lol fuck you too.')
 
+def command_rimshot(CHAN, sender):
+	if random.random() > 0.9:
+		send_message(CHAN, "that wasn't actually that funny")
+	else:
+		send_message(CHAN, "*BA DUM TSSH*")
+
+def command_sage_wisdom(CHAN, sender):
+	advice = ["Pigs are smarter than bears but they can't ride motorcycles.",
+		"Have you tried turning it off and then back on again?",
+		"Do the bit",
+		"Press the win button",
+		"The winner is the one who sucks the least. But let me be clear: you still suck.",
+		"As a great monarch once stated: :U",
+		"Naw, not feeling like wisdom right now",
+		"Are fish tacos shaped liked a fish?",
+		"Don't forget Gelato 7",]
+	send_message(CHAN, random.choice(advice))
 
 # ------------------- The Pet Commands -------------------------------
 
@@ -362,6 +383,7 @@ str, str, str, str, str -> none"""
     
 #create a new state machine instance
     BotState = StateMachine()
+    random.seed(time.time())
 
     PET_COUNTER = 0
     PET_BOOL = True
