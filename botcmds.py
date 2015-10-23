@@ -16,7 +16,7 @@ SILENT_AUTO_OFF = ['#xxxxxxxx',]    # channels to automatically turn off silent 
 RATE = (20/30) # messages per second
 
 # List of links to automatically timeout. Meant to catch bots.
-BAN = ['bit.ly', 'goo.gl', '.gu.ma', 'ow.ly', ".3utilities.com", ".gotdns.", ".myftp.", "3cm.ky", "http://t.co", '.myvnc.']
+BAN = ['bit.ly', 'goo.gl', '.gu.ma', 'ow.ly', ".3utilities.com", ".gotdns.", ".myftp.", "3cm.ky", "http://t.co", '.myvnc.', 'make.my/', 'bounceme.net',]
 
 # List of phrases to pick up for a joke timeout
 FUCKER = ['fuckyoukeewy', 'fuckyou,keewy']
