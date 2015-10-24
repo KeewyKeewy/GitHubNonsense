@@ -73,6 +73,7 @@ class NormalState(object):
             '!pet': command_pet,
             '!nerd': command_nerd,
             'hoi': command_hoi,
+            'hoi!': command_hoi,
             '!rimshot':command_rimshot,
             '!sagewisdom' : command_sage_wisdom,}
         # put in banables and fucker words because they're technically commands
@@ -99,6 +100,7 @@ class ModState(object):
         # put in banables and fucker words because they're technically commands
         self.modCommands = {
         	'hoi': command_hoi,
+        	'hoi!': command_hoi,
         	'!togglepet': command_pet_toggle,
             '!pettoggle': command_pet_toggle,
             '!test': command_test,
@@ -127,6 +129,24 @@ class GameState(object):
 
 def change_state(statemachine, newstate):
     statemachine.currentState = newstate()
+
+
+# --------------------- Message Class ------------------------------
+class MessageObject(object):
+	"""contains all relevant information to the message in one place"""
+	def __init__ (self, msgChan, sender, msg):
+		self.channel = msgChan
+		self.sender = sender
+		self.message = msg
+
+	def get_channel(self):
+		return self.channel
+
+	def get_sender(self):
+		return self.sender
+
+	def get_message(self):
+		return self.message
 
 # -------------------- Start Functions -----------------------------
 
@@ -191,6 +211,7 @@ def parse_message(sender, msg, channel, mybotstate):
     # --- End Definitions ---
     
     if len(msg) >= 1:
+        msg_object = MessageObject(channel, sender, copy.deepcopy(msg))
         ban_msg = copy.deepcopy(msg)
         msg = msg.split(' ')
         # a copy of the original message with all the spaces removed
@@ -198,26 +219,27 @@ def parse_message(sender, msg, channel, mybotstate):
 
         for j in BANNED_WORDS:
             if j in ban_msg.lower():
-                command_timeout(CHAN, sender)
+                command_timeout(msg_object)
                 BAN_CHECK = False
 
         if BAN_CHECK:
             for i in FUCKER_WORDS:
                 if j in ban_msg.lower():
-                    command_fuckyou(CHAN, sender)
+                    command_fuckyou(msg_object)
                     FUCKER_CHECK = True
 
         #now we check each part of the state machine
         for i in msg:
             if i.lower() in mybotstate.currentState.commands:
-                mybotstate.currentState.commands[i.lower()](channel, sender)
-                #TODO: will need to updae this to support commands with parameters
-            elif i.lower() in mybotstate.currentState.modCommands and check_mod(channel, sender):
+                mybotstate.currentState.commands[i.lower()](msg_object)
+                #TODO: will need to update this to support commands with parameters
+            elif i.lower() in mybotstate.currentState.modCommands and check_mod(msg_object):
                 if i.lower() in mybotstate.transitions:
                     #transition to next
                     change_state(mybotstate, mybotstate.transitions[i.lower()])
+                    send_message(CHAN, "Keewybot is now in " + i.lower()[1:] + " mode.")
                 else:
-                    mybotstate.currentState.modCommands[i.lower()](channel, sender)
+                    mybotstate.currentState.modCommands[i.lower()](msg_object)
 
 
 # -------------- End Helper Functions -------------------
@@ -225,43 +247,43 @@ def parse_message(sender, msg, channel, mybotstate):
 
 # -------------------- Start Command Functions -----------------
 # ALL COMMANDS REQUIRE CHAN AND SENDER, EVEN IF THEY DON'T USE IT
-def command_test(CHAN, sender):
+def command_test(msg_object):
     """A command to test if the bot is working.
 
 str > none"""
-    send_message(CHAN, "Hope I'm not broken.")
+    send_message(msg_object.get_channel(), "Hope I'm not broken.")
 
-def command_hoi(CHAN, sender):
+def command_hoi(msg_object):
     """hOI!
 
 str > none"""
-    send_message(CHAN, "hOI ! ! !")
+    send_message(msg_object.get_channel(), "hOI ! ! !")
 
 
-def command_pikmin4(CHAN, sender):
+def command_pikmin4(msg_object):
     """A command to express the hype that is Pikmin 4.
 
 str > none"""
-    send_message(CHAN, "PIKMIN 4 CoolCat")
+    send_message(msg_object.get_channel(), "PIKMIN 4 CoolCat")
 
-def command_nerd(CHAN, sender):
+def command_nerd(msg_object):
     """A command to poke fun at the nerds in chat.
 
 string > none"""
-    if sender in mods or sender in admins:
-        send_message(CHAN, "FrankerZ ")
-        send_message(CHAN, "FrankerZ FrankerZ ")
-        send_message(CHAN, "FrankerZ FrankerZ FrankerZ ")
-        send_message(CHAN, "FrankerZ FrankerZ ")
-        send_message(CHAN, "FrankerZ ")
-        send_message(CHAN, "GET FUCKO'D")
+    if msg_object.get_sender() in mods or msg_object.get_sender() in admins:
+        send_message(msg_object.get_channel(), "FrankerZ ")
+        send_message(msg_object.get_channel(), "FrankerZ FrankerZ ")
+        send_message(msg_object.get_channel(), "FrankerZ FrankerZ FrankerZ ")
+        send_message(msg_object.get_channel(), "FrankerZ FrankerZ ")
+        send_message(msg_object.get_channel(), "FrankerZ ")
+        send_message(msg_object.get_channel(), "GET FUCKO'D")
     else:
-        send_message(CHAN, 'lol nerd you do not have permission to use this command.')
+        send_message(msg_object.get_channel(), 'lol nerd you do not have permission to use this command.')
     
-def get_mods(CHAN, sender):
+def get_mods(msg_object):
     global mods
     global chatters
-    response = urlopen('https://tmi.twitch.tv/group/user/' + CHAN[1:] + '/chatters')
+    response = urlopen('https://tmi.twitch.tv/group/user/' + msg_object.get_channel()[1:] + '/chatters')
     readable = response.read().decode('utf-8')
     chatlist = loads(readable)
     #load the moderator list
@@ -269,86 +291,87 @@ def get_mods(CHAN, sender):
     mods = chatters['moderators']
     print ("Reloaded the Modlist")
     
-def check_mod(CHAN, sender):
+def check_mod(msg_object):
     global mods
     global chatters
     global admins
-    if sender in mods or sender in admins:
+    if msg_object.get_sender() in mods or msg_object.get_sender() in admins:
         return True
     else:
         return False
 
-def command_am_i_a_mod(CHAN, sender):
+def command_am_i_a_mod(msg_object):
     global mods
     global chatters
     global admins
-    if sender in mods or sender in admins:
-        send_message(CHAN, "Yes, " + sender + ", obviously")
+    if msg_object.get_sender() in mods or msg_object.get_sender() in admins:
+        send_message(msg_object.get_channel(), "Yes, " + msg_object.get_sender() + ", obviously")
     else:
-        send_message(CHAN, "No, " + sender + ", you aren't")
+        send_message(msg_object.get_channel(), "No, " + msg_object.get_sender() + ", you aren't")
 
-def command_timeout(CHAN, sender):
+def command_timeout(msg_object):
     """Uses the /timeout command to timeout a user.
 
 str, str > msg"""
-    send_message(CHAN, '/timeout ' + sender + ' 60')
-    send_message(CHAN, sender + ' timed out because of shortened link.')
+    send_message(msg_object.get_channel(), '/timeout ' + msg_object.get_sender() + ' 60')
+    send_message(msg_object.get_channel(), msg_object.get_sender() + ' timed out because of shortened link.')
     
-def command_fuckyou(CHAN, sender):
+def command_fuckyou(msg_object):
     """Uses the /timeout command cause lol fuck you too.
 
 str, str > msg"""
-    send_message(CHAN, '/timeout ' + sender + ' 5')
-    send_message(CHAN, sender + ' timed out because lol fuck you too.')
+    send_message(msg_object.get_channel(), '/timeout ' + msg_object.get_sender() + ' 5')
+    send_message(msg_object.get_channel(), msg_object.get_sender() + ' timed out because lol fuck you too.')
 
-def command_rimshot(CHAN, sender):
+def command_rimshot(msg_object):
 	if random.random() > 0.9:
-		send_message(CHAN, "that wasn't actually that funny")
+		send_message(msg_object.get_channel(), "that wasn't actually that funny")
 	else:
-		send_message(CHAN, "*BA DUM TSSH*")
+		send_message(msg_object.get_channel(), "*BA DUM TSSH*")
 
-def command_sage_wisdom(CHAN, sender):
+def command_sage_wisdom(msg_object):
 	advice = ["Pigs are smarter than bears but they can't ride motorcycles.",
 		"Have you tried turning it off and then back on again?",
-		"Do the bit",
+		"Do the thing with the thing",
 		"Press the win button",
 		"The winner is the one who sucks the least. But let me be clear: you still suck.",
 		"As a great monarch once stated: :U",
 		"Naw, not feeling like wisdom right now",
 		"Are fish tacos shaped liked a fish?",
-		"Don't forget Gelato 7",]
-	send_message(CHAN, random.choice(advice))
+		"Don't forget Gelato 7",
+		"Lift your keyboard directly above your head, then slightly tilt and flip it",]
+	send_message(msg_object.get_channel(), random.choice(advice))
 
 # ------------------- The Pet Commands -------------------------------
 
-def command_pet_toggle(CHAN, sender):
+def command_pet_toggle(msg_object):
     """Switches petting between short and long form. Only works for mods.
 
 str, str, str -> none"""
     global PET_BOOL
     if PET_BOOL:
         PET_BOOL = False
-        send_message(CHAN, 'Lesser Dog got closer.')
+        send_message(msg_object.get_channel(), 'Lesser Dog got closer.')
     elif not PET_BOOL:
         PET_BOOL = True
-        send_message(CHAN, 'Lesser Dog walked away.')
+        send_message(msg_object.get_channel(), 'Lesser Dog walked away.')
     else:
-        send_message(CHAN, 'Invalid arguement "' + petstr + '"')
+        send_message(msg_object.get_channel(), 'Invalid arguement "' + petstr + '"')
 
 
-def command_pet(CHAN, sender):
+def command_pet(msg_object):
     global PET_COUNTER
     global PET_BOOL
     global TIME_SET
     if  PET_BOOL:
-        send_message(CHAN, 'KeewyDog Lesser Dog got excited.')
+        send_message(msg_object.get_channel(), 'KeewyDog Lesser Dog got excited.')
 
     else:
         i = pet.pet(PET_COUNTER)
         PET_COUNTER = PET_COUNTER + 1
         TIME_SET = time.time()
         for message in i:
-            send_message(CHAN, message)
+            send_message(msg_object.get_channel(), message)
     
 # ------------- End Command Functions -----------------
 
