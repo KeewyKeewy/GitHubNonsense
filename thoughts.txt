@@ -11,3 +11,19 @@ Idea: Quote command:
 
 have a !quote command that sends a message of a random quote form a list of quotes.
 And a !writequote command for mods to save new quotes to the file.
+
+_____________________________________________________
+
+
+pikmin 4 auto response command:
+
+Search message for form of "You know what else is _____?"
+run loop looking for negative words (like ['bad', 'terrible', 'shit', etc]
+ - could probabaly find a list of those somewhere
+have a variable for positive msg True or False
+run words through a list of changers, like "isn't" and "not"
+ - each instance of a changer switches the positive variable from true to false to true whatever
+if message is positive;
+	send "Pikmin 4"
+else:
+	send random message from list ["I see what you're trying to do.", "Don't try me.", "No.", ect]

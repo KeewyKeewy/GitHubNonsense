@@ -314,7 +314,7 @@ def command_timeout(msg_object):
 
 str, str > msg"""
     send_message(msg_object.get_channel(), '/timeout ' + msg_object.get_sender() + ' 60')
-    send_message(msg_object.get_channel(), msg_object.get_sender() + ' timed out because of shortened link.')
+    send_message(msg_object.get_channel(), msg_object.get_sender() + ' timed out because of bot-related link.')
     
 def command_fuckyou(msg_object):
     """Uses the /timeout command cause lol fuck you too.
