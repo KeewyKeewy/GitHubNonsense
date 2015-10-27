@@ -81,7 +81,8 @@ class NormalState(object):
             '!pettoggle': command_pet_toggle,
             "!silent": change_state,
             "!modsonly": change_state,
-            "!game": change_state,}
+            "!game": change_state,
+            "!leave": command_leave,}
 
 class SilentState(object):
     """the bot says nothing but still continues banning work"""
@@ -91,7 +92,8 @@ class SilentState(object):
         self.modCommands = {
             "!normal": change_state,
             "!modsonly": change_state,
-            "!game": change_state,}
+            "!game": change_state,
+            "!leave": command_leave,}
 
 class ModState(object):
     """Only mods have access to all commands the bot can do"""
@@ -114,7 +116,8 @@ class ModState(object):
             "!modsonly": change_state,
             "!game": change_state,
             '!rimshot': command_rimshot,
-            '!sagewisdom' : command_sage_wisdom,}
+            '!sagewisdom' : command_sage_wisdom,
+            "!leave": command_leave,}
 
 class GameState(object):
     """Only commands relevant to the game or banable actions are active"""
@@ -124,7 +127,8 @@ class GameState(object):
         self.modCommands = {
             "!normal": change_state,
             "!silent": change_state,
-            "!modsonly": change_state,}
+            "!modsonly": change_state,
+            "!leave": command_leave,}
         
 
 def change_state(statemachine, newstate):
@@ -339,8 +343,16 @@ def command_sage_wisdom(msg_object):
 		"Naw, not feeling like wisdom right now",
 		"Are fish tacos shaped liked a fish?",
 		"Don't forget Gelato 7",
-		"Lift your keyboard directly above your head, then slightly tilt and flip it",]
+		"Lift your keyboard directly above your head, then slightly tilt and flip it",
+		"Never put your hand where you wouldn't put your willy",]
 	send_message(msg_object.get_channel(), random.choice(advice))
+
+def command_leave(msg_object):
+	"""!leave forces Keewybot to quit. It is accessible only by admins or channel owners, should Keewybot
+		ever find its way onto other channels that the owner doesn't want"""
+	if msg_object.get_sender() in admins or msg_object.get_sender() == msg_object.get_channel[1:]:
+		send_message(msg_object.get_channel(), "Keewybot is now leaving. Goodbye!")
+		exit()
 
 # ------------------- The Pet Commands -------------------------------
 
