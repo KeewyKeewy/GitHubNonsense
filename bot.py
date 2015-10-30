@@ -1,6 +1,6 @@
 # bot.py
 
-import cfg, re, botcmds, socket, time, copy, pet, random
+import cfg, re, settings, botcmds, socket, time, copy, random
 from multiprocessing import Process
 
 # Make sure you prefix the quotes with an 'r'!
@@ -8,7 +8,9 @@ CHAT_MSG=re.compile(r"^:\w+!\w+@\w+\.tmi\.twitch\.tv PRIVMSG #\w+ :")
 
 
 from urllib.request import urlopen
-from json import loads
+from json import loads, dumps, load, dump
+
+
 # network functions go here ________________________________
 
 HOST_CFG = cfg.HOST
@@ -20,8 +22,8 @@ CHAN_CFG = cfg.CHAN
 
 # ------------------ Some Definitions ------------------------
 
-BANNED_WORDS = botcmds.BAN
-FUCKER_WORDS = botcmds.FUCKER
+BANNED_WORDS = settings.BAN
+FUCKER_WORDS = settings.FUCKER
 
 
 global mods
@@ -75,13 +77,15 @@ class NormalState(object):
             'hoi': command_hoi,
             'hoi!': command_hoi,
             '!rimshot':command_rimshot,
-            '!sagewisdom' : command_sage_wisdom,}
+            '!sagewisdom' : command_sage_wisdom,
+            '!quote' : command_quote,}
         # put in banables and fucker words because they're technically commands
         self.modCommands = {'!togglepet': command_pet_toggle,
             '!pettoggle': command_pet_toggle,
             "!silent": change_state,
             "!modsonly": change_state,
-            "!game": change_state,}
+            "!game": change_state,
+            "!writequote" : command_write_quote}
 
 class SilentState(object):
     """the bot says nothing but still continues banning work"""
@@ -114,7 +118,9 @@ class ModState(object):
             "!modsonly": change_state,
             "!game": change_state,
             '!rimshot': command_rimshot,
-            '!sagewisdom' : command_sage_wisdom,}
+            '!sagewisdom' : command_sage_wisdom,
+                '!quote' : command_quote,
+                '!writequote' : command_write_quote}
 
 class GameState(object):
     """Only commands relevant to the game or banable actions are active"""
@@ -342,6 +348,62 @@ def command_sage_wisdom(msg_object):
 		"Lift your keyboard directly above your head, then slightly tilt and flip it",]
 	send_message(msg_object.get_channel(), random.choice(advice))
 
+# ------------- Quote Commands -------------
+
+def command_quote(msg_object):
+    try:
+        with open("quotes", "r") as file:
+            quotedict = load(file)
+        quotelist = quotedict[msg_object.get_channel()]
+        send_message(msg_object.get_channel(), random.choice(quotelist))
+            except KeyError:
+                print("KeyError Found")
+                print(file)
+                quotedict = load(file)
+                print("Load Success")
+                quotedict[msg_object.get_channel()] = ['"Nah, not feeling it." - Me']
+                dump(quotedict, file, indent=4)
+                send_message(msg_object.get_channel(), "No quotes found for this channel, so I made you one. <3")
+
+    except FileNotFoundError:
+        with open("quotes", "w") as file:
+            quotedict = {msg_object.get_channel() : ['"Nah, not feeling it." - Me']}
+            dump(quotedict, file, indent=4)
+        send_message(msg_object.get_channel(), "No quote file found, so I made you one. <3")
+
+    except KeyError:
+        with open("quotes", "w") as file:
+            print("KeyError Found")
+            print(file)
+            quotedict = load(file)
+            print("Load Success")
+            quotedict[msg_object.get_channel()] = ['"Nah, not feeling it." - Me']
+            dump(quotedict, file, indent=4)
+        send_message(msg_object.get_channel(), "No quotes found for this channel, so I made you one. <3")
+
+
+    
+#    send_message(msg_object.get_channel(), botcmds.quote())
+
+def command_write_quote(msg_object):
+    with open("quotes", "w") as file:
+        print("starting write")
+        quotedict = load(file)
+        quotelist = quotedict[msg_object.get_channel()]
+        print(quotelist)
+        msg = msg_object.get_message()
+        q = msg.replace('!writequote ', '')
+        quotelist.append(q)
+        quotedict[msg_object.get_channel()] = quotelist
+        print(quotedict)
+        dump(quotedict, file, indent=4)
+        
+    send_message(msg_object.get_channel(), "Successfully added " + q + " to the quote list.")
+
+
+        
+#    send_message(msg_object.get_channel(), botcmds.writequote(msg_object.get_message()))
+
 # ------------------- The Pet Commands -------------------------------
 
 def command_pet_toggle(msg_object):
@@ -367,7 +429,7 @@ def command_pet(msg_object):
         send_message(msg_object.get_channel(), 'KeewyDog Lesser Dog got excited.')
 
     else:
-        i = pet.pet(PET_COUNTER)
+        i = botcmds.pet(PET_COUNTER)
         PET_COUNTER = PET_COUNTER + 1
         TIME_SET = time.time()
         for message in i:
@@ -449,10 +511,9 @@ str, str, str, str, str -> none"""
 
             if (TIME_SET - time.time()) < -30 or (TIME_SET - time.time())> 0:
                 PET_COUNTER = 0
-                print("PET_COUNTER has reset.")
                 TIME_SET = time.time()
             
-            time.sleep(1 / botcmds.RATE)
+            time.sleep(1 / settings.RATE)
 
         except socket.error:
             print("Socket died")
