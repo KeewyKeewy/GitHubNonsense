@@ -356,14 +356,6 @@ def command_quote(msg_object):
             quotedict = load(file)
         quotelist = quotedict[msg_object.get_channel()]
         send_message(msg_object.get_channel(), random.choice(quotelist))
-            except KeyError:
-                print("KeyError Found")
-                print(file)
-                quotedict = load(file)
-                print("Load Success")
-                quotedict[msg_object.get_channel()] = ['"Nah, not feeling it." - Me']
-                dump(quotedict, file, indent=4)
-                send_message(msg_object.get_channel(), "No quotes found for this channel, so I made you one. <3")
 
     except FileNotFoundError:
         with open("quotes", "w") as file:
