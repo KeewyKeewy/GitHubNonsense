@@ -4,16 +4,7 @@ Idea: Mario Maker Mode:
 	- when streamer wants next code
 		-> bot spits out code w/ user name of who sent said code
 		
-_____________________________________________________
-
-
-Idea: Quote command:
-
-have a !quote command that sends a message of a random quote form a list of quotes.
-And a !writequote command for mods to save new quotes to the file.
-
-_____________________________________________________
-
+_____________________________________________________________________
 
 pikmin 4 auto response command:
 
