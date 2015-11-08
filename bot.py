@@ -105,9 +105,9 @@ class ModState(object):
         self.commands = {}
         # put in banables and fucker words because they're technically commands
         self.modCommands = {
-        	'hoi': command_hoi,
-        	'hoi!': command_hoi,
-        	'!togglepet': command_pet_toggle,
+            'hoi': command_hoi,
+            'hoi!': command_hoi,
+            '!togglepet': command_pet_toggle,
             '!pettoggle': command_pet_toggle,
             '!test': command_test,
             '!pikmin4': command_pikmin4,
@@ -143,20 +143,20 @@ def change_state(statemachine, newstate):
 
 # --------------------- Message Class ------------------------------
 class MessageObject(object):
-	"""contains all relevant information to the message in one place"""
-	def __init__ (self, msgChan, sender, msg):
-		self.channel = msgChan
-		self.sender = sender
-		self.message = msg
+    """contains all relevant information to the message in one place"""
+    def __init__ (self, msgChan, sender, msg):
+        self.channel = msgChan
+        self.sender = sender
+        self.message = msg
 
-	def get_channel(self):
-		return self.channel
+    def get_channel(self):
+        return self.channel
 
-	def get_sender(self):
-		return self.sender
+    def get_sender(self):
+        return self.sender
 
-	def get_message(self):
-		return self.message
+    def get_message(self):
+        return self.message
 
 # -------------------- Start Functions -----------------------------
 
@@ -334,24 +334,24 @@ str, str > msg"""
     send_message(msg_object.get_channel(), msg_object.get_sender() + ' timed out because lol fuck you too.')
 
 def command_rimshot(msg_object):
-	if random.random() > 0.9:
-		send_message(msg_object.get_channel(), "that wasn't actually that funny")
-	else:
-		send_message(msg_object.get_channel(), "*BA DUM TSSH*")
+    if random.random() > 0.9:
+        send_message(msg_object.get_channel(), "that wasn't actually that funny")
+    else:
+        send_message(msg_object.get_channel(), "*BA DUM TSSH*")
 
 def command_sage_wisdom(msg_object):
-	advice = ["Pigs are smarter than bears but they can't ride motorcycles.",
-		"Have you tried turning it off and then back on again?",
-		"Do the thing with the thing",
-		"Press the win button",
-		"The winner is the one who sucks the least. But let me be clear: you still suck.",
-		"As a great monarch once stated: :U",
-		"Naw, not feeling like wisdom right now",
-		"Are fish tacos shaped liked a fish?",
-		"Don't forget Gelato 7",
-		"Lift your keyboard directly above your head, then slightly tilt and flip it",
-		"Never put your hand where you wouldn't put your willy",]
-	send_message(msg_object.get_channel(), random.choice(advice))
+    advice = ["Pigs are smarter than bears but they can't ride motorcycles.",
+        "Have you tried turning it off and then back on again?",
+        "Do the thing with the thing",
+        "Press the win button",
+        "The winner is the one who sucks the least. But let me be clear: you still suck.",
+        "As a great monarch once stated: :U",
+        "Naw, not feeling like wisdom right now",
+        "Are fish tacos shaped liked a fish?",
+        "Don't forget Gelato 7",
+        "Lift your keyboard directly above your head, then slightly tilt and flip it",
+        "Never put your hand where you wouldn't put your willy",]
+    send_message(msg_object.get_channel(), random.choice(advice))
 
 # ------------- Quote Commands -------------
 
@@ -403,11 +403,11 @@ def command_write_quote(msg_object):
         send_message(msg_object.get_channel(), "Successfully added " + quote + " to the quote list.")
 
 def command_leave(msg_object):
-	"""!leave forces Keewybot to quit. It is accessible only by admins or channel owners, should Keewybot
-		ever find its way onto other channels that the owner doesn't want"""
-	if msg_object.get_sender() in admins or msg_object.get_sender() == msg_object.get_channel[1:]:
-		send_message(msg_object.get_channel(), "Keewybot is now leaving. Goodbye!")
-		exit()
+    """!leave forces Keewybot to quit. It is accessible only by admins or channel owners, should Keewybot
+        ever find its way onto other channels that the owner doesn't want"""
+    if msg_object.get_sender() in admins or msg_object.get_sender() == msg_object.get_channel[1:]:
+        send_message(msg_object.get_channel(), "Keewybot is now leaving. Goodbye!")
+        exit()
 
 # ------------------- The Pet Commands -------------------------------
 
