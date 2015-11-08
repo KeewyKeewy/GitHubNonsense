@@ -8,7 +8,7 @@ CHAT_MSG=re.compile(r"^:\w+!\w+@\w+\.tmi\.twitch\.tv PRIVMSG #\w+ :")
 
 
 from urllib.request import urlopen
-from json import loads, dumps, load, dump
+from json import loads, load, dump
 
 
 # network functions go here ________________________________
@@ -352,49 +352,51 @@ def command_sage_wisdom(msg_object):
 
 def command_quote(msg_object):
     try:
-        with open("quotes", "r") as file:
-            quotedict = load(file)
+        with open("quotes.json", "r") as q:
+            quotedict = load(q)
+            
         quotelist = quotedict[msg_object.get_channel()]
         send_message(msg_object.get_channel(), random.choice(quotelist))
 
     except FileNotFoundError:
-        with open("quotes", "w") as file:
+        with open("quotes.json", "w") as q:
             quotedict = {msg_object.get_channel() : ['"Nah, not feeling it." - Me']}
-            dump(quotedict, file, indent=4)
+            dump(quotedict, q)
+            
         send_message(msg_object.get_channel(), "No quote file found, so I made you one. <3")
 
     except KeyError:
-        with open("quotes", "w") as file:
-            print("KeyError Found")
-            print(file)
-            quotedict = load(file)
-            print("Load Success")
+        with open("quotes.json", "r") as q:
+            quotedict = load(q)
+        with open("quotes.json", "w") as q:
             quotedict[msg_object.get_channel()] = ['"Nah, not feeling it." - Me']
-            dump(quotedict, file, indent=4)
+            dump(quotedict, q)
+            
         send_message(msg_object.get_channel(), "No quotes found for this channel, so I made you one. <3")
 
-
-    
-#    send_message(msg_object.get_channel(), botcmds.quote())
-
 def command_write_quote(msg_object):
-    with open("quotes", "w") as file:
-        print("starting write")
-        quotedict = load(file)
-        quotelist = quotedict[msg_object.get_channel()]
-        print(quotelist)
-        msg = msg_object.get_message()
-        q = msg.replace('!writequote ', '')
-        quotelist.append(q)
-        quotedict[msg_object.get_channel()] = quotelist
-        print(quotedict)
-        dump(quotedict, file, indent=4)
-        
-    send_message(msg_object.get_channel(), "Successfully added " + q + " to the quote list.")
+    try:
+        with open("quotes.json", "r") as q:
+            quotedict = load(q)
+        with open("quotes.json", "w") as q:
+            quotelist = quotedict[msg_object.get_channel()]
+            msg = msg_object.get_message()
+            quote = msg.replace('!writequote ', '')
+            quotelist.append(quote)
+            quotedict[msg_object.get_channel()] = quotelist
+            dump(quotedict, q)
+            
+        send_message(msg_object.get_channel(), "Successfully added " + quote + " to the quote list.")
+            
+    except FileNotFoundError:
+        with open("quotes.json", "w") as q:
+            msg = msg_object.get_message()
+            quote = msg.replace('!writequote ', '')
+            quotedict = {msg_object.get_channel(): [quote]}
+            dump(quotedict, q)
+            
+        send_message(msg_object.get_channel(), "Successfully added " + quote + " to the quote list.")
 
-
-        
-#    send_message(msg_object.get_channel(), botcmds.writequote(msg_object.get_message()))
 
 # ------------------- The Pet Commands -------------------------------
 

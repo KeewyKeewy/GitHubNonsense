@@ -52,4 +52,5 @@ bot.pyc
 *.pyc
 __pycache__/botcmds.cpython-35.pyc
 __pycache__/cfg.cpython-35.pyc
-__pycache__/pet.cpython-35.pyc
+
+quotes.json
