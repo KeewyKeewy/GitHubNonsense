@@ -386,7 +386,7 @@ def command_write_quote(msg_object):
         with open("quotes.json", "w") as q:
             quotelist = quotedict[msg_object.get_channel()]
             msg = msg_object.get_message()
-            quote = msg.replace('!writequote ', '')
+            quote = msg[12:]
             quotelist.append(quote)
             quotedict[msg_object.get_channel()] = quotelist
             dump(quotedict, q)
@@ -396,7 +396,7 @@ def command_write_quote(msg_object):
     except FileNotFoundError:
         with open("quotes.json", "w") as q:
             msg = msg_object.get_message()
-            quote = msg.replace('!writequote ', '')
+            quote = msg[12:]
             quotedict = {msg_object.get_channel(): [quote]}
             dump(quotedict, q)
             
