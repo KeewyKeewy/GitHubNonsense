@@ -78,7 +78,8 @@ class NormalState(object):
             'hoi!': command_hoi,
             '!rimshot':command_rimshot,
             '!sagewisdom' : command_sage_wisdom,
-            '!quote' : command_quote,}
+            '!quote' : command_quote,
+            'dear' : command_ask_tem,}
         # put in banables and fucker words because they're technically commands
         self.modCommands = {'!togglepet': command_pet_toggle,
             '!pettoggle': command_pet_toggle,
@@ -267,7 +268,12 @@ def command_hoi(msg_object):
     """hOI!
 
 str > none"""
-    send_message(msg_object.get_channel(), "hOI ! ! !")
+    global TEM_CHECK
+    global TIMER_TEMMIE
+    if TEM_CHECK:
+        send_message(msg_object.get_channel(), "hOI ! ! !")
+        TIMER_TEMMIE = time.time()
+        TEM_CHECK = False
 
 
 def command_pikmin4(msg_object):
@@ -286,7 +292,7 @@ string > none"""
         send_message(msg_object.get_channel(), "FrankerZ FrankerZ FrankerZ ")
         send_message(msg_object.get_channel(), "FrankerZ FrankerZ ")
         send_message(msg_object.get_channel(), "FrankerZ ")
-        send_message(msg_object.get_channel(), "GET FUCKO'D")
+        send_message(msg_object.get_channel(), "FUCKO'D")
     else:
         send_message(msg_object.get_channel(), 'lol nerd you do not have permission to use this command.')
     
@@ -352,6 +358,41 @@ def command_sage_wisdom(msg_object):
         "Lift your keyboard directly above your head, then slightly tilt and flip it",
         "Never put your hand where you wouldn't put your willy",]
     send_message(msg_object.get_channel(), random.choice(advice))
+
+def command_ask_tem(msg_object):
+    """
+"""
+    global TEM_CHECK
+    global TIMER_TEMMIE
+    msg = msg_object.get_message()
+    msg_check = msg.replace("dear", "")
+    msg_check = msg_check.split(' ')
+    response = ["* tem... have a solushun! temMIE",
+                "* OMG!! humans TOO CUTE (dies) temMIE",
+                "* go to TEM SHOP!!! temMIE",
+                "* WOA!!! temMuns",
+                "* hnn, tem think... temMIE",
+                "* go to colleg! temMIE",
+                "* don forget my friend! temMIE",]
+    # add in "You will regret this." when there are more options.
+    if TEM_CHECK:
+        if "dear tem" in msg.lower():
+            if "tem flake" in msg.lower() or "temmie flake" in msg.lower():
+                TIMER_TEMMIE = time.time()
+                TEM_CHECK = False
+                send_message(msg_object.get_channel(), "* TEM LOVE TEM FLAKE temMuns")
+            elif "history" in msg.lower():
+                TIMER_TEMMIE = time.time()
+                TEM_CHECK = False
+                send_message(msg_object.get_channel(), msg_object.get_sender() + ", " + "* us tems have a deep history!!! temMIE")
+            elif "hoi" in msg.lower():
+                TIMER_TEMMIE = time.time()
+                TEM_CHECK = False
+                send_message(msg_object.get_channel(), msg_object.get_sender() + ", " + "* hOI!!!!!! i'm tEMMIE!! temMIE")
+            else:
+                TIMER_TEMMIE = time.time()
+                TEM_CHECK = False
+                send_message(msg_object.get_channel(), msg_object.get_sender() + ", " + random.choice(response))
 
 # ------------- Quote Commands -------------
 
@@ -470,6 +511,8 @@ str, str, str, str, str -> none"""
     global mods
     global chatters
     global SILENT_MODE
+    global TEM_CHECK
+    global TIMER_TEMMIE
     
 #create a new state machine instance
     BotState = StateMachine()
@@ -478,6 +521,9 @@ str, str, str, str, str -> none"""
     PET_COUNTER = 0
     PET_BOOL = True
     TIME_SET = time.time()
+    
+    TEM_CHECK = True
+    TIMER_TEMMIE = time.time()
 
     if CHAN not in cfg.SILENT_AUTO_OFF:
         change_state(BotState, BotState.transitions["!silent"])
@@ -487,6 +533,14 @@ str, str, str, str, str -> none"""
             data = data+con.recv(1024).decode('UTF-8')
             data_split = re.split(r"[~\r\n]+", data)
             data = data_split.pop()
+
+            if (TIME_SET - time.time()) < -30 or (TIME_SET - time.time())> 0:
+                PET_COUNTER = 0
+                TIME_SET = time.time()
+                
+            if (TIMER_TEMMIE - time.time()) < -5 or (TIMER_TEMMIE - time.time())> 0:
+                TEM_CHECK = True
+                TIMER_TEMMIE = time.time()
 
             for line in data_split:
                 line = str.rstrip(line)
@@ -514,9 +568,6 @@ str, str, str, str, str -> none"""
 
                         print(sender + ": " + message)
 
-            if (TIME_SET - time.time()) < -30 or (TIME_SET - time.time())> 0:
-                PET_COUNTER = 0
-                TIME_SET = time.time()
             
             time.sleep(1 / settings.RATE)
 
