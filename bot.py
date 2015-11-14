@@ -79,7 +79,8 @@ class NormalState(object):
             '!rimshot':command_rimshot,
             '!sagewisdom' : command_sage_wisdom,
             '!quote' : command_quote,
-            'dear' : command_ask_tem,}
+            'dear' : command_ask_tem,
+            'you' : command_know_what_else,}
         # put in banables and fucker words because they're technically commands
         self.modCommands = {'!togglepet': command_pet_toggle,
             '!pettoggle': command_pet_toggle,
@@ -124,7 +125,8 @@ class ModState(object):
             '!sagewisdom' : command_sage_wisdom,
             '!quote' : command_quote,
             '!writequote' : command_write_quote,
-            "!leave": command_leave,}
+            "!leave": command_leave,
+            'you' : command_know_what_else,}
 
 class GameState(object):
     """Only commands relevant to the game or banable actions are active"""
@@ -282,6 +284,10 @@ def command_pikmin4(msg_object):
 str > none"""
     send_message(msg_object.get_channel(), "PIKMIN 4 CoolCat")
 
+def command_know_what_else(msg_object):
+    if "know" in msg_object.message.lower() and "what" in msg_object.message.lower() and "else" in msg_object.message.lower():
+        send_message(msg_object.get_channel(), "PIKMIN 4 CoolCat")
+
 def command_nerd(msg_object):
     """A command to poke fun at the nerds in chat.
 
@@ -356,7 +362,14 @@ def command_sage_wisdom(msg_object):
         "Are fish tacos shaped liked a fish?",
         "Don't forget Gelato 7",
         "Lift your keyboard directly above your head, then slightly tilt and flip it",
-        "Never put your hand where you wouldn't put your willy",]
+        "Never put your hand where you wouldn't put your willy",
+        "Try recoloring your stream layout into BRIGHT NEON COLORS",
+        "Tell C to come up with 5 more puns about it and beat it to death",
+        "Try not to bonk into things 3 times in a row",
+        "Rub some bacon on it",
+        "Nothing I can say will help at this point",
+        "Choose a file block containing saved game data, then select Score from the menu. Choosing Score allows you to check the number of fucks I give",
+        "Pick up blue coins to regain two health points. These are rare coins that may interest a certain shopkeeper",]
     send_message(msg_object.get_channel(), random.choice(advice))
 
 def command_ask_tem(msg_object):
