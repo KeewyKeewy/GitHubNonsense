@@ -37,6 +37,11 @@ global SILENT_MODE
 global con
 con = socket.socket()
 
+global negwords
+
+with open("negative.json", "r") as neg:
+    negwords = load(neg)
+
 # ------------------ Start State Classes ------------------------
 
 class StateMachine(object):
@@ -285,8 +290,35 @@ str > none"""
     send_message(msg_object.get_channel(), "PIKMIN 4 CoolCat")
 
 def command_know_what_else(msg_object):
+    neg_check = False
+    not_check = False
+    global negwords
+    not_words = ["not", "isn't", "isnt"]
+    msg_check = msg_object.message.lower().replace('?', "").split(' ')
     if "know" in msg_object.message.lower() and "what" in msg_object.message.lower() and "else" in msg_object.message.lower():
-        send_message(msg_object.get_channel(), "PIKMIN 4 CoolCat")
+        for word in msg_check:
+            if word in negwords:
+                neg_check = True
+                pass
+        for word in msg_check:
+            if word in not_words:
+                if not_check == False:
+                    not_check = True
+                else:
+                    not_check = False
+        if not_check:
+            if neg_check == False:
+                neg_check = True
+            else:
+                neg_check = False
+        if neg_check:
+            neg_response = ["PIKM. . . hey wait a second.",
+                            "I don't know.",
+                            "Good question.",
+                            msg_object.get_sender(),]
+            send_message(msg_object.get_channel(), random.choice(neg_response))
+        else:
+            send_message(msg_object.get_channel(), "PIKMIN 4 CoolCat")
 
 def command_nerd(msg_object):
     """A command to poke fun at the nerds in chat.
