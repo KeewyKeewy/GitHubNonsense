@@ -293,7 +293,7 @@ def command_know_what_else(msg_object):
     neg_check = False
     not_check = False
     global negwords
-    not_words = ["not", "isn't", "isnt"]
+    not_words = ["not", "isn't", "isnt", "doesn't", "doesnt",]
     msg_check = msg_object.message.lower().replace('?', "").split(' ')
     if "know" in msg_object.message.lower() and "what" in msg_object.message.lower() and "else" in msg_object.message.lower():
         for word in msg_check:
@@ -401,7 +401,8 @@ def command_sage_wisdom(msg_object):
         "Rub some bacon on it",
         "Nothing I can say will help at this point",
         "Choose a file block containing saved game data, then select Score from the menu. Choosing Score allows you to check the number of fucks I give",
-        "Pick up blue coins to regain two health points. These are rare coins that may interest a certain shopkeeper",]
+        "Pick up blue coins to regain two health points. These are rare coins that may interest a certain shopkeeper",
+        "Remember to change your stream title",]
     send_message(msg_object.get_channel(), random.choice(advice))
 
 def command_ask_tem(msg_object):
