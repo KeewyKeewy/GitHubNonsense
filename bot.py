@@ -402,7 +402,12 @@ def command_sage_wisdom(msg_object):
         "Nothing I can say will help at this point",
         "Choose a file block containing saved game data, then select Score from the menu. Choosing Score allows you to check the number of fucks I give",
         "Pick up blue coins to regain two health points. These are rare coins that may interest a certain shopkeeper",
-        "Remember to change your stream title",]
+        "Remember to change your stream title",
+        "Don't take ages on this skip",
+        "No reason to worry, you won't get world record anyways",
+        "I found this trick as a kid. It's not that hard, you can do it",
+        "There are plenty of ways to mess up, but you don't need to find all of them",
+        "We don't make mistakes, just happy little accidents",]
     send_message(msg_object.get_channel(), random.choice(advice))
 
 def command_ask_tem(msg_object):
