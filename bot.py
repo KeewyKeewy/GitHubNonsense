@@ -451,13 +451,26 @@ def command_quote(msg_object):
     try:
         with open("quotes.json", "r") as q:
             quotedict = load(q)
-            
-        quotelist = quotedict[msg_object.get_channel()]
-        send_message(msg_object.get_channel(), random.choice(quotelist))
+        try:
+            msg = msg_object.get_message()
+            msgnum = int(msg[7:])
+            quotelist = quotedict[msg_object.get_channel()]
+            quotecount = quotelist['0']
+            if msgnum == 0:
+                send_message(msg_object.get_channel(), "There are " + str(quotecount) + " quotes for this channel")
+            elif msgnum > quotecount:
+                send_message(msg_object.get_channel(), "There is no quote for that number.")
+            else:
+                send_message(msg_object.get_channel(), quotelist[str(msgnum)])
+
+        except ValueError:
+            quotelist = quotedict[msg_object.get_channel()]
+            quotecount = quotelist['0']
+            send_message(msg_object.get_channel(), quotelist[str(random.randrange(1,quotecount))])
 
     except FileNotFoundError:
         with open("quotes.json", "w") as q:
-            quotedict = {msg_object.get_channel() : ['"Nah, not feeling it." - Me']}
+            quotedict = {msg_object.get_channel() : {'0':1, '1':'"Nah, not feeling it." - Me'}}
             dump(quotedict, q)
             
         send_message(msg_object.get_channel(), "No quote file found, so I made you one. <3")
@@ -466,7 +479,7 @@ def command_quote(msg_object):
         with open("quotes.json", "r") as q:
             quotedict = load(q)
         with open("quotes.json", "w") as q:
-            quotedict[msg_object.get_channel()] = ['"Nah, not feeling it." - Me']
+            quotedict = {msg_object.get_channel() : {'0':1, '1':'"Nah, not feeling it." - Me'}}
             dump(quotedict, q)
             
         send_message(msg_object.get_channel(), "No quotes found for this channel, so I made you one. <3")
@@ -479,7 +492,9 @@ def command_write_quote(msg_object):
             quotelist = quotedict[msg_object.get_channel()]
             msg = msg_object.get_message()
             quote = msg[12:]
-            quotelist.append(quote)
+            quotecount = quotelist['0'] + 1
+            quotelist['0'] = quotecount
+            quotelist[str(quotecount)] = quote
             quotedict[msg_object.get_channel()] = quotelist
             dump(quotedict, q)
             
@@ -489,7 +504,8 @@ def command_write_quote(msg_object):
         with open("quotes.json", "w") as q:
             msg = msg_object.get_message()
             quote = msg[12:]
-            quotedict = {msg_object.get_channel(): [quote]}
+            quotedict = {msg_object.get_channel() : {'0':1}}
+            quotedict = {msg_object.get_channel(): {'1':quote}}
             dump(quotedict, q)
             
         send_message(msg_object.get_channel(), "Successfully added " + quote + " to the quote list.")
