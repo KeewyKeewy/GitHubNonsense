@@ -466,7 +466,10 @@ def command_quote(msg_object):
         except ValueError:
             quotelist = quotedict[msg_object.get_channel()]
             quotecount = quotelist['0']
-            send_message(msg_object.get_channel(), quotelist[str(random.randrange(1,quotecount))])
+            if quotecount == 1:
+                send_message(msg_object.get_channel(), quotelist['1'])
+            else:
+                send_message(msg_object.get_channel(), quotelist[str(random.randrange(1,quotecount))])
 
     except FileNotFoundError:
         with open("quotes.json", "w") as q:
