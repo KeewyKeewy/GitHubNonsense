@@ -242,7 +242,7 @@ def parse_message(sender, msg, channel, mybotstate):
 
         if BAN_CHECK:
             for i in FUCKER_WORDS:
-                if j in ban_msg.lower():
+                if i in ban_msg.lower():
                     command_fuckyou(msg_object)
                     FUCKER_CHECK = True
 
@@ -374,7 +374,7 @@ def command_fuckyou(msg_object):
     """Uses the /timeout command cause lol fuck you too.
 
 str, str > msg"""
-    send_message(msg_object.get_channel(), '/timeout ' + msg_object.get_sender() + ' 5')
+    send_message(msg_object.get_channel(), '/timeout ' + msg_object.get_sender() + ' 0')
     send_message(msg_object.get_channel(), msg_object.get_sender() + ' timed out because lol fuck you too.')
 
 def command_rimshot(msg_object):
