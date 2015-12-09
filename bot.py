@@ -384,7 +384,7 @@ def command_rimshot(msg_object):
         send_message(msg_object.get_channel(), "*BA DUM TSSH*")
 
 def command_sage_wisdom(msg_object):
-    advice = ["Pigs are smarter than bears but they can't ride motorcycles.",
+    baseadvice = ["Pigs are smarter than bears but they can't ride motorcycles.",
         "Have you tried turning it off and then back on again?",
         "Do the thing with the thing",
         "Press the win button",
@@ -392,7 +392,6 @@ def command_sage_wisdom(msg_object):
         "As a great monarch once stated: :U",
         "Naw, not feeling like wisdom right now",
         "Are fish tacos shaped liked a fish?",
-        "Don't forget Gelato 7",
         "Lift your keyboard directly above your head, then slightly tilt and flip it",
         "Never put your hand where you wouldn't put your willy",
         "Try recoloring your stream layout into BRIGHT NEON COLORS",
@@ -401,13 +400,23 @@ def command_sage_wisdom(msg_object):
         "Rub some bacon on it",
         "Nothing I can say will help at this point",
         "Choose a file block containing saved game data, then select Score from the menu. Choosing Score allows you to check the number of fucks I give",
-        "Pick up blue coins to regain two health points. These are rare coins that may interest a certain shopkeeper",
         "Remember to change your stream title",
-        "Don't take ages on this skip",
         "No reason to worry, you won't get world record anyways",
         "I found this trick as a kid. It's not that hard, you can do it",
         "There are plenty of ways to mess up, but you don't need to find all of them",
         "We don't make mistakes, just happy little accidents",]
+    channeladvice = {"#sirtet":["Don't forget Gelato 7",
+                                "Pick up blue coins to regain two health points. These are rare coins that may interest a certain shopkeeper",
+                                "Don't take ages on this skip",                                
+                                ],
+                     "#c7_the_epic":["I'd say don't suck, but you obviously need to suck more",
+                                   "Don't run around people's mansions humping chests",
+                                   "Large Pearls are acquired by sucking up a portrait ghost in one go.  They are worth 1 million dollars and are essential to Luigi's Mansion 100% runs",
+                                   ]}
+    if msg_object.get_channel() in channeladvice:
+        advice = baseadvice + channeladvice[msg_object.get_channel()]
+    else:
+        advice = baseadvice
     send_message(msg_object.get_channel(), random.choice(advice))
 
 def command_ask_tem(msg_object):
