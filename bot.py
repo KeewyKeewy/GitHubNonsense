@@ -332,7 +332,8 @@ string > none"""
         send_message(msg_object.get_channel(), "FrankerZ ")
         send_message(msg_object.get_channel(), "FUCKO'D")
     else:
-        send_message(msg_object.get_channel(), 'lol nerd you do not have permission to use this command.')
+        send_message(msg_object.get_channel(), '/timeout ' + msg_object.get_sender() + ' 1')
+        send_message(msg_object.get_channel(), msg_object.get_sender() + 'is a nerd.')
     
 def get_mods(msg_object):
     global mods
@@ -374,7 +375,7 @@ def command_fuckyou(msg_object):
     """Uses the /timeout command cause lol fuck you too.
 
 str, str > msg"""
-    send_message(msg_object.get_channel(), '/timeout ' + msg_object.get_sender() + ' 0')
+    send_message(msg_object.get_channel(), '/timeout ' + msg_object.get_sender() + ' 1')
     send_message(msg_object.get_channel(), msg_object.get_sender() + ' timed out because lol fuck you too.')
 
 def command_rimshot(msg_object):
