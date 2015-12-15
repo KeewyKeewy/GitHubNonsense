@@ -400,7 +400,6 @@ def command_sage_wisdom(msg_object):
         "Try not to bonk into things 3 times in a row",
         "Rub some bacon on it",
         "Nothing I can say will help at this point",
-        "Choose a file block containing saved game data, then select Score from the menu. Choosing Score allows you to check the number of fucks I give",
         "Remember to change your stream title",
         "No reason to worry, you won't get world record anyways",
         "I found this trick as a kid. It's not that hard, you can do it",
@@ -408,11 +407,14 @@ def command_sage_wisdom(msg_object):
         "We don't make mistakes, just happy little accidents",]
     channeladvice = {"#sirtet":["Don't forget Gelato 7",
                                 "Pick up blue coins to regain two health points. These are rare coins that may interest a certain shopkeeper",
-                                "Don't take ages on this skip",                                
+                                "Don't take ages on this skip",
+                                "Choose a file block containing saved game data, then select Score from the menu. Choosing Score allows you to check the number of fucks I give",                           
                                 ],
                      "#c7_the_epic":["I'd say don't suck, but you obviously need to suck more",
                                    "Don't run around people's mansions humping chests",
                                    "Large Pearls are acquired by sucking up a portrait ghost in one go.  They are worth 1 million dollars and are essential to Luigi's Mansion 100% runs",
+                                   "Water your fruits and vegetables. Also, the plant.",
+                                   "Calm down; It's only the bonus room Kappa ",
                                    ]}
     if msg_object.get_channel() in channeladvice:
         advice = baseadvice + channeladvice[msg_object.get_channel()]
