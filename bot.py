@@ -413,6 +413,7 @@ def command_sage_wisdom(msg_object):
                      "#c7_the_epic":["I'd say don't suck, but you obviously need to suck more",
                                    "Don't run around people's mansions humping chests",
                                    "Large Pearls are acquired by sucking up a portrait ghost in one go.  They are worth 1 million dollars and are essential to Luigi's Mansion 100% runs",
+                                     "Don't forget to water the flower",
                                    ]}
     if msg_object.get_channel() in channeladvice:
         advice = baseadvice + channeladvice[msg_object.get_channel()]
