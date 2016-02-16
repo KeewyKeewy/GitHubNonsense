@@ -325,15 +325,15 @@ def command_nerd(msg_object):
 
 string > none"""
     if msg_object.get_sender() in mods or msg_object.get_sender() in admins:
-        send_message(msg_object.get_channel(), "FrankerZ ")
-        send_message(msg_object.get_channel(), "FrankerZ FrankerZ ")
-        send_message(msg_object.get_channel(), "FrankerZ FrankerZ FrankerZ ")
-        send_message(msg_object.get_channel(), "FrankerZ FrankerZ ")
-        send_message(msg_object.get_channel(), "FrankerZ ")
+        send_message(msg_object.get_channel(), "KeewyDog ")
+        send_message(msg_object.get_channel(), "KeewyLesser KeewyDog ")
+        send_message(msg_object.get_channel(), "KeewyLesser KeewyLesser KeewyDog ")
+        send_message(msg_object.get_channel(), "KeewyLesser KeewyDog ")
+        send_message(msg_object.get_channel(), "KeewygoD ")
         send_message(msg_object.get_channel(), "FUCKO'D")
     else:
         send_message(msg_object.get_channel(), '/timeout ' + msg_object.get_sender() + ' 1')
-        send_message(msg_object.get_channel(), msg_object.get_sender() + 'is a nerd.')
+        send_message(msg_object.get_channel(), msg_object.get_sender() + ' is a nerd.')
     
 def get_mods(msg_object):
     global mods
